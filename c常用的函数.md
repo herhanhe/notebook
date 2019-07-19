@@ -310,8 +310,8 @@ notebook: c
         char *p = s1;
         while (*s1++ = *s2++)
             ;
-	    return p;
-	}
+        return p;
+    }
 ```
 
 ### （23）strcat 函数：字符串的连接
