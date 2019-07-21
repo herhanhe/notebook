@@ -321,22 +321,75 @@ notebook: c
 >功能：&emsp;把`s2`指向的字符串复制到s1指向的数组的末尾。当s2与s1重叠时，作未定义处理<br/>
 >返回值：返回`s1`的值<br/>
 
-### （24）strncmpx 函数：比较字符串的开头部分
-
-### （25）toupper 函数：把小写英文字母转换成对应的大写英文字母
+### （24）toupper 函数：把小写英文字母转换成对应的大写英文字母
 >**toupper**<br/>
 >头文件：`#include <ctype.h>`<br/>
 >格式：&emsp;`int toupper(int c);`<br/>
 >功能：&emsp;把小写英文字母转换成对应的大写英文字母<br/>
 >返回值：如果`c`是小写英文字母，就返回转换成大写英文字母后的值，否则直接返回`c`<br/>
 
-### （26）tolower 函数：把大写英文字母转换成对应的小写英文字母
+### （25）tolower 函数：把大写英文字母转换成对应的小写英文字母
 >**tolower**<br/>
 >头文件：`#include <ctype.h>`<br/>
 >格式：&emsp;`int tolower(int c);`<br/>
 >功能：&emsp;把大写英文字母转换成对应的小写英文字母<br/>
 >返回值：如果`c`是大写英文字母，就返回转换成小写英文字母后的值，否则直接返回`c`<br/>
 
-### （27）va_start 宏：访问可变参数前的准备
+### （26）getch函数：获取按下的键(windows)
+>**getch**<br/>
+>头文件：`#include <conio.h>`(*非标准库)<br/>
+>格式：&emsp;`int getch(void);`<br/>
+>功能：&emsp;直接从键盘读取字符而不回显<br/>
+>返回值：返回读取到的字符的值
+
+### （27）putch函数：输出到控制台(windows)
+>**putch**<br/>
+>头文件：`#include <conio.h>`(*非标准库)<br/>
+>格式：&emsp;`int putch(int c);`<br/>
+>功能：&emsp;在画面上显示字符`c`（在一些特殊的编程环境中，如果`c`是换行符就只换行而不进行返回操作）<br/>
+>返回值：显示成功后返回输入的字符`c`,错误则返回`EOF`
+
+liunx 使用的Curses库的概要
+| | |
+-|-
+initscr | 生成屏幕并初始化库。使用Curses库是必须最先调用该函数
+cbreak|禁止行缓冲
+noecho|禁止输入的字符显示在画面上
+refresh|刷新画面
+getch|返回输入的字符
+endwin|使用库时用最后收尾的函数。使用Curses库时必须最后调用该函数（通常情况下，画面上的字符会全部消失）
+
+### （26）va_start 宏：访问可变参数前的准备
 >**va_start**<br/>
->头文件
+>头文件：`#include <stdarg.h>`<br/>
+>格式：&emsp;`void va_start(va_list ap,最终参数);`<br/>
+>功能：&emsp;必须在访问无名称的实际参数前调用该宏。为了后续调用va_arg及va_end,需提前初始化ap。作为形式参数的最终参数是函数定义过程中位于可变形式参数列表最右边的形式参数的标识符，也就是省略符号",..."前的标识符，当作为形式参数的最终参数被声明为下列类型时，作未定义处理 □ register存储类 □ 函数类 □ 数组类 □ 与应用了默认的实际参数提升的类型不匹配的类型<br/>
+>返回值：无
+
+### (27)va_arg宏：取出可变参数
+>**va_arg**<br/>
+>头文件：#include <stdarg.h><br/>
+>格式：&emsp;`类型va_arg(va_list ap,类型);`<br/>
+>功能：在函数调用中展开为一个包含可变参数列表中下一个实际参数的值和类型的表达式。形式参数`ap`必须和通过`va_start`初始化的`va_list ap`相同。接下来调用`va_arg`时，更新`ap`以返回下一个实际参数的值。形式参数的类型名为所指定的类型名，但是必须在类型的后面加上一个后缀`*`才能获得指向该类型对象的指针类型。当没有下一个实际参数时，或者类型和实际的（随着既定的实际参数提升而被提升的）下一个实际参数的类型不匹配时，作未定义处理<br/>
+>返回值：在调用va_start宏后首次调用该宏时，将返回最终参数指定的实际参数的下一个实际参数的值。后继的一连串调用将安顺序返回剩下的实际参数的值
+
+### （28）va_end宏：结束对可变参数的访问
+>**va_end**<br/>
+>头文件：`#include <stdarg.h>`<br/>
+>格式：&emsp;`void va_end(va_list ap);`<br/>
+>功能：&emsp;结束对可变参数列表的处理，使用函数正常返回。编程环境允许`va_end`宏更新`ap`令`ap`无法使用（只要不再次调用`va_start`）。当没有调用对应的`va_start`宏时，或者没有在返回前调用`va_end`宏时，作未定义处理<br/>
+>返回值：无
+
+### （29）vprintf函数/vfprintf函数：输出到流
+>**vprinf**
+>头文件：`#include <stdio.h>`
+		`#include <stdarg.h>` <br/>
+>格式：&emsp;int vprintf(const char *format,va_list arg);<br/>
+>功能：&emsp;函数等价于用`arg`替换可变实际参数列表的printf函数。调用该函数前，必须事先用`va_start`宏初始化`arg`（可以继续调用`va_arg`）。该函数不调用va_end宏<br/>
+>返回值：返回写入的字符数量。发生输出错误时则返回负值
+
+>**vfprinf**
+>头文件：`#include <stdio.h>`
+		`#include <stdarg.h>`<br/>
+>格式：&emsp;`int vfprintf(FILE *stream,const char *format,va_list arg);`
+>功能：函数等价于用`arg`
