@@ -1,5 +1,5 @@
 ---
-title: 阿里Linux Shell脚本面经25个经典问答
+title: 阿里Linux Shell 脚本面经25个经典问答
 tags: 学习
 notebook: shell
 ---

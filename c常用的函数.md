@@ -381,15 +381,138 @@ endwin|使用库时用最后收尾的函数。使用Curses库时必须最后调�
 >返回值：无
 
 ### （29）vprintf函数/vfprintf函数：输出到流
->**vprinf**
+>**vprintf**<br/>
 >头文件：`#include <stdio.h>`
 		`#include <stdarg.h>` <br/>
 >格式：&emsp;int vprintf(const char *format,va_list arg);<br/>
 >功能：&emsp;函数等价于用`arg`替换可变实际参数列表的printf函数。调用该函数前，必须事先用`va_start`宏初始化`arg`（可以继续调用`va_arg`）。该函数不调用va_end宏<br/>
 >返回值：返回写入的字符数量。发生输出错误时则返回负值
 
->**vfprinf**
+>**vfprinf**<br/>
 >头文件：`#include <stdio.h>`
 		`#include <stdarg.h>`<br/>
->格式：&emsp;`int vfprintf(FILE *stream,const char *format,va_list arg);`
->功能：函数等价于用`arg`
+>格式：&emsp;`int vfprintf(FILE *stream,const char *format,va_list arg);`<br/>
+>功能：&emsp;函数等价于用`arg`替换可变实际参数列表的`fprintf`函数。调用该函数前，必须事先用`va_start`宏初始化`arg`（可用继续调用`va_arg`）。该函数不调用va_end宏<br/>
+>返回值：返回写入的字符数量。发生输出错误时返回负值
+
+### （30）vsprintf函数：输出到字符串
+> **vsprintf**<br/>
+> 头文件：`#include <stdio.h>`
+		 `#include <stdarg.h>`<br/>
+> 格式：&emsp;`int vsprintf(char *s,const char *format,va_list arg);`<br/>
+> 功能：&emsp;函数等价于用`arg`替换可变实际参数列表的sprintf函数。调用该函数前，必须事先用`va_start`宏初始化`arg`（而且可以继续调用`va_arg`）。该函数不调用va_end宏<br/>
+> 返回值：返回写入数组的字符数量，但是不包含表示字符串结尾的空字符
+
+### （31）getchar函数和EOF
+```c
+	#define EOF -1  /*定义的示例（值根据编程环境而有所不同）*/
+```
+> **getchar**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int getchar(void);`
+> 功能：&emsp;从标准输入流stdin中读取`unsigned char`型的下一个字符（如果存在），并将其转换成`int`型，然后将流关联的文件位置指标符（如果定义了文件位置指示符）移动到下一个字符<br/>
+> 返回值：返回标准输入流`stdin`的下一个字符。在流中检测出文件末尾时，对该流设置文件结束指示符，返回`EOF`
+
+### （32）setvbuf函数/setvbuf函数：更改缓冲方法
+> **setvbuf**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int setvbuf(FILE *stream,char *buf,int mode,size_t szie)`<br/>
+> 功能：&emsp;只有在`stream`指向的流连接到已打开的文件，且对该流进行其他的操作前，才允许调用本函数。实际参数`mode`像下面这样来指定对`stream`的缓冲方法。<br/>
+`_IOFBF`······对输入输出进行全部缓冲。<br/>
+`_IOLBF`······对输入输出进行行缓冲。<br/>
+`_IONBF`······对输入输出不进行缓冲。<br/>
+若`buf`为空指针则分割空间，将其作为缓冲区来使用。若`buf`不为空指针，则将`buf`指向的数组作为缓冲区来使用。实际参数`size`用于指定数组的大小。数组的内容通常是不固定的<br/>
+> 返回值：成功后返回0；当`mode`被指定了无效值或者无法顺应要求时返回0以外的值
+
+> **setbuf**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`void setbuf(FILE *stream,char *buf);`<br/>
+> 功能：&emsp;除了不返回值以外，其他都与把`mode`作为值`_IOFBF`，把`size`作为值`BUFSIZE`（专栏9-1）的`setvbuf`函数相同。但是当`buf`为空指针时，则等价于把`mode`作为值`_IONBF`的`setvbuf`函数<br/>
+> 返回值：无
+
+### （33）fflush函数：刷新缓冲区
+> **fflush**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fflush(FILE *stream);`<br/>
+> 功能：&emsp;当`stream`指向输出流或更新流，并且这个更新流最近执行的操作不是输入时，`fflush`函数将把该流中还未写入这些数据。其他情况下的动作未定义。当`stream`为空指针时，对定义了刷新操作的所有流执行该操作<br/>
+> 返回值：发生写入错误时返回`EOF`，否则返回0
+
+### （34）fopen函数：打开文件
+> **fopen**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`FILE *fopen(const char *filename,const char *mode);`<br/>
+> 功能：&emsp;打开文件名称为`filename`指向的字符串的文件，把流连接到该文件。<br/>
+实际参数`mode`指向的字符串以下任一个字符开头。<br/>
+`r`&emsp;以只读模式打开文本文件。<br/>
+`w`&emsp;以只写模式生成文本文件，若文件存在则文件长度清为0。<br/>
+`a`&emsp;以追加模式，也就是从文件末尾处开始的只写模式，打开或生成文本文件。<br/>
+`rb`&emsp;以只读模式打开二进制文件。<br/>
+`wb`&emsp;以只写模式生成二进制文件，若文件存在则文件长度清为0。<br/>
+`ab`&emsp;以追加模式，也就是从文件末尾处开始的只写模式，打开或生成二进制文件。<br/>
+`r+`&emsp;以更新（读写）模式打开文本文件。<br/>
+`w+`&emsp;以更新模式生成文本文件，若文件存在则文件长度清为0。<br/>
+`a+`&emsp;以追加模式，也就是从文件末尾处开始写入的更新模式，打开或生成文本文件。<br/>
+`r+b`或`rb+`&emsp;以更新（读写）模式打开二进制文件。<br/>
+`w+b`或`wb+`&emsp;以更新模式生成二进制文件，若文件存在则文件长度清为0。<br/>
+`a+b`或`ab+`&emsp;以追加模式，也就是从文件末尾处开始写入的更新模式，打开或生成二进制文件。<br/>
+以只读模式打开（`mode`以字符`r`开头时）文件时，如果该文件不存在或者没有读取权限，则文件打开失败。<br/>
+对于以追加模式（`mode`以字符`a`开头时）打开的文件，打开后的写入操作都是在文件末尾处进行的。此时`fseek`函数的调用会被忽略。在有些用空字符填充二进制文件的编程环境中，以追加模式（`mode`以字符`a`开头，并且第2个或第3个字符是`b`）打开二进制文件时，会将流的文件位置指示符设在超过文件中数据末尾的位置。<br/>
+对于以更新模式（`mode`的第2个或第3个字符是`+`）打开的文件所连接的流，允许进行输入和输出操作。但若要在输出操作之后进行输入操作，就必须在这两个操作之间调用文件定位函数（`fseek,fsetpos`或`rewind`）。除非输入操作进行到文件末尾，其他情况下若要在输入操作之后进行输出操作，也必须在这两个操作之间调用文件定位函数。有的编程环境会将以更新模式打开（或生成）文本文件替换为相同模式打开（或生成）二进制文件，这不会影响操作。<br/>
+当能够识别到打开的流没有连接到通信设备时，该流为全缓冲。打开时会清空流的错误指示符和文件结束指示符<br/>
+返回值：返回一个指向对象的指针，该对象用于控制已打开的流。若打开操作失败，则返回空指针。
+
+### （35）fclose函数：关闭文件
+> **fclose**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fclose(FILE *stream);`<br/>
+> 功能：&emsp;刷新`stream`指向的流，关闭与该流相连的文件。流中只进行了缓冲操作，还未被写入的数据会被传递到主机环境，由主机环境把这些数据写入文件中，而缓冲区里面尚未被读取的数据会被丢弃。然后把该流与文件分离，如果存在系统自动分配的与该流相连接的缓冲区，则会释放该缓冲区<br/>
+> 返回值：成功关闭流时返回0，检测出错误时则返回`EOF`
+
+### （36）fscanf函数：输入格式
+> **fscanf**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fscanf(FILE *stream,const char *format,...);`<br/>
+> 功能：从`stream`指向的流（而不是标准输入流）中读取信息。除此之外，与scanf函数完全相同。<br/>
+> 返回值：如果没有进行任何转换就发生了输入错误，则返回宏`EOF`的值。否则返回被赋值的输入项数。如果在输入中发生匹配错误，则输入项数有可能小于与转换说明符对应的实际参数的个数，也有可能变成0。
+
+### （37）fprintf函数：输出格式
+> **fprintf**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fprintf(FILE *stream,const char *format,...);`<br/>
+> 功能：&emsp;向`stream`指向的流（而不是标准输出流）写入信息。除此之外，与`printf`函数完全相同<br/>
+> 返回值：返回传送的字符数量。若发生输出错误则返回负值
+
+### （38）fgetc函数：从流中读取一个字符
+> **fgetc**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fgetc(FILE *stream);`<br/>
+> 功能：&emsp;从`stream`指向的输入流中读取`unsigned char`型的下一个字符的值（如果存在下一个字符），并将其转换成`int`型，然后将该流关联的文件位置指示符（如果定义了文件位置指示符）移动到下一个字符<br/>
+> 返回值：返回`stream`指向的输入流中的一个字符。在流中检测到文件末尾时对该流设置文件结束指示符并返回`EOF`。发生读取错误时，则对该流设置错误指示符并返回`EOF`
+
+### （39）fputc函数：向流输出一个字符
+> **fputc**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fputc(int c,FILE *stream);`<br/>
+> 功能：&emsp;将`c`指定的字符转换成`unsigned char`型并写入`stream`指向的输出流，此时如果定义了流关联的文件位置指示符，就会向其指示的位置写入字符，并将文件位置指示符适当地向前移动。在不支持文件定位或以追加模式打开流的情况下，输出的字符往往会被追加到输出流的末尾<br/>
+> 返回值：返回写入的字符，若发生写入错误，则对流设置错误指示符并返回`EOF`
+
+### （40）fputs函数：输出字符串
+> **fputs**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`int fputs(const char *s,FILE *stream);`<br/>
+> 功能：&emsp;把参数s指向的字符串写入`stream`指向的流，但是不包含表示字符串结尾的空字符<br/>
+> 返回值：若发生写入错误则返回`EOF`,否则返回非负值
+
+### （41）fread函数：从文件中读取数据
+> **fread**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`size_t fread(void *ptr,size_t size,size_t nmemb,FILE *stream);`<br/>
+> 功能：&emsp;从`stream`指向的流中最多读取`nmemb`个大小为`size`的元素到`ptr`指向的数组。对应该流的文件位置指示符（如果定义了文件位置指示符）按照读取成功的字符数量相应向前移动。发生错误时，对应该流的文件位置指示符的值不固定。当只读取了某一元素的部分内容时，元素的值不固定<br/>
+> 返回值：返回读取成功的元素个数。当发生读取错误或读取到文件末尾时，元素个数有时会小于`nmemb`。当`size`或`nmemb`为0时返回0，此时数组内容和流的状态都不发生变化
+
+### （42）fwrite函数：向文件中写入数据
+> **fwrite**<br/>
+> 头文件：`#include <stdio.h>`<br/>
+> 格式：&emsp;`size_t fwrite(const void *ptr,size_t size,size_t nmemb,FILE *stream);`<br/>
+> 功能：从`ptr`指向的数组中将最多`nmemb`个大小为size的元素写入`stream`指向的流中。对应该流的文件位置指示符（如果定义了文件位置指示符）按照写入成功的字符数量相应地向前移动。发生错误时，对应该流的文件位置指示符的值不固定<br/>
+> 返回值：返回写入成功的元素个数。仅当发生写入错误时，元素个数会小于`nmemb`
