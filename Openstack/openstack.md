@@ -1,7 +1,7 @@
 ---
-title: 
-tags: 
-notebook: 
+title: OpenStack 概念
+tags: 学习
+notebook: OpenStack
 ---
 ## OpenStack 基本概念
 
