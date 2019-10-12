@@ -138,5 +138,6 @@ notebook: shell
     do
         FAIL_COUNT=0
         for (( i=1;i<=3;i++));
-        dos
+        do
+            if ping -c 1 $IP 
 ```
