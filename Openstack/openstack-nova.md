@@ -97,7 +97,7 @@ notebook: OpenStack
         * 符合条件的`host`进行优先级排序
     
     ![24](https://ae01.alicdn.com/kf/H02889f1ce42748c0a5a1e71849cb9bd0w.png)
-
+    ![25](https://puui.qpic.cn/fans_admin/0/3_1218999906_1571036384161/0)
     * 过滤（`filter`）算法
         * `RetryFilter`
             * 如果虚拟机调度失败，是否重新调度的次数（ `scheduler_max_attempts=3` ）
@@ -117,9 +117,25 @@ notebook: OpenStack
             ```
             * 以这个镜像创建虚拟机，只能选择体系结构式`arm，hypervisor`是`qemu`的主机
         * `CoreFilter`
-                选择哪些能够满足虚拟机cpu要求的那些物理机
-如果不设置，单个虚拟机的和数可以超过物理机的和数
-可以指定cpu超分比率， cpu_allocation_ratio=16.0
-思考：如果一台4核的物理机，cpu_allocation_ratio=2，那么最大可以创建多少核的虚拟机
-
-
+            * 选择哪些能够满足虚拟机`cpu`要求的那些物理机
+            * 如果不设置，单个虚拟机的和数可以超过物理机的和数
+            * 可以指定`cpu`超分比率， `cpu_allocation_ratio=16.0`
+            * 思考：如果一台4核的物理机，`cpu_allocation_ratio=2`，那么最大可以创建多少核的虚拟机
+    * 权重（`weight`）算法-权重是如何计算出来的?
+        * `ram_weight_multiplier`(内存权重系数)
+            * 整数，选出内存最大的物理机 $->$ 虚拟机在所有物理机上平铺（`spreading`）
+            * 负数，选出内存最小的物理机 $->$ 虚拟机在部分物理机上堆叠（`stacking`）
+        * `scheduler_host_subset_size`(最佳机器的子集大小)
+            *  如果有`N`个机器的优先级相同，则随机选择`scheduler_host_subset_size`个
+            *  `scheduler_host_subset_size = 1`（默认）
+        * `scheduler_weight_classes`（权重计算算法选择类）
+            * `RamWeigher`，内存权重排序算法，默认算法
+            * `MetricsWeigher`，自定义的权重排序算法
+### `Nova-conductor`
+* 数据库访问代理服务
+    * 防止计算节点直接访问数据库
+        * 计算节点相对不可信、高风险的
+        * 负载均衡，可扩展性好
+    * 不能与`nova-compute`部署在同一节点上
+    * 如果不想使用`nova-conductor`，在`nova.conf`中增加配置项：
+        * `use_local = True`
