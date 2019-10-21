@@ -15,7 +15,7 @@ notebook: OpenStack
     * 既支持与https的源同步，也支持与http的源同步
     * 同步的软件数量少，耗时短，并且可以与国内优秀的源同步（比如豆瓣）
 
-## Nova架构介绍
+## `Nova`架构介绍
 ### 简单架构
 * 简单架构
     * 单点服务
@@ -30,6 +30,7 @@ notebook: OpenStack
 
 ![17](https://ae01.alicdn.com/kf/H05b24ae651ff41d48e67ebf118d87ac3S.png)
 
+## `nova`的服务
 ### `Nova API`
 * `nova-api`服务
     * 接收和响应用户的`API`请求
@@ -139,3 +140,88 @@ notebook: OpenStack
     * 不能与`nova-compute`部署在同一节点上
     * 如果不想使用`nova-conductor`，在`nova.conf`中增加配置项：
         * `use_local = True`
+### `Nova-VNC`服务
+* `VNC`访问方式原理
+    * `VNC`访问方式
+        * `host_ip:port`,比如`221.130.253.135:1`
+        * 如何获得虚拟机对应的`vnc port`? -> `vncdisplay domain_id`
+        * 客户端软件：`vnc viewer, tightVNC`等等
+    * `VNC`访问原理
+        * 基于`RFB`协议，即`Remote FrameBuffer protocol`
+        * 有两部分组成：`vnc server`和`vnc client`
+        * `Server`和`client`端共享图形界面 
+* `noVNC`访问方式原理
+    * 由两个服务构成：`nova-novncproxy`和`nova-consoleauth`
+    * `nova-novncproxy`的功能
+        * 将公网（`public network`）和私网（`private network`）隔离
+            * `vnc client`运行在公网上，`vnc server`运行在私网上
+            * `vnc proxy`作为连接二者的桥梁
+        * 通过`token`对`vnc client`进行验证
+        * 可以同时支持多种`vnc client`
+            * `novnc`,基于`html5 websockets`,`Canvas`和`JavaScripts`实现
+            * `Spice`,redhat的虚拟桌面技术
+    * `nova-consoleauth`服务
+        * 用于进行`token`的验证
+    * 访问原理
+        * `nova-novncproxy`监听`6080`端口
+        * 作为用户`vnc`访问的一道大门，处理用户的`vnc`访问请求
+* `noVNC`访问原理
+![26](https://ae01.alicdn.com/kf/H811b86c152864e638ef4e45b0f47b3a3W.png)
+    1. 一个用户试图从浏览器里面打开连接到虚拟机的`VNC Client`
+    2. 浏览器向`nova-api`发送请求，要求返回访问`vnc`的`url`
+    3. `nova-api`调用`nova-compute`的`get_vnc_console`方法，要求返回连接`VNC`的信息
+    4. `nova-compute`调用`libvirt`的`get_vnc_console`函数
+    5. `libvirt`会通过解析虚拟机的的配置文件`/instance-00000001.xml`来获得`VNC Server`的信息
+    6. `libvirt`将`host`, `port`等信息以`json`格式返回给`nova-compute`
+    7. `nova-compute`会随机生成一个`UUID`作为`Token`
+    8. `nova-api`会调用`nova-consoleauth`的`authorize_console`函数
+    9. `nova-api`将`connect_info`中的`access url`信息返回给浏览器
+    10. 当浏览器试图打开这个链接时，会将请求发送给`nova-novncproxy`
+    11. `nova-novncproxy`调用`nova-consoleauth`的`check_token`函数
+    12. `nova-consoleauth`验证了这个`token`，将这个`instance`对应的`connect_info`返回给`nova-novncproxy`
+    13. `nova-novncproxy`通过`connect_info`中的`host`, `port`等信息，连接`compute`节点上的`VNC Server`，从而开始了`proxy`的工作
+    14. `nova-compute`将`libvirt`返回的信息以及配置文件中的信息综合成`connect_info`返回给`nova-api`
+* `noVNC`配置项
+```
+    vncserver_proxyclient_address = compute_ip
+    vncserver_listen = 0.0.0.0
+    vnc_enabled = true
+    novncproxy_base_url = http://10.0.10.10:6080/vnc_auto.html
+```
+### `Nova-cert`和`Nova-objectstore`
+* `nova-cert`服务
+    * `X509`认证服务，仅用于调用`openstack`兼容`EC2`的`API`时候使用
+* `nova-objectstore`服务
+    * `nova`对象存储接口服务，通过此服务来访问`Swift`或`S3`
+### `Nova-compute`
+* `nova-compute`服务 
+    * 所有的计算节点要运行的服务
+    * 主要处理虚拟机相关的各种操作，虚拟机的创建，删除，挂起，重启等
+    * 可以通过`nova service-list`来查看当前环境中的所有的`nova`服务
+## 虚拟机创建流程分析
+* `openstack`集群的初始状态
+![27](https://ae01.alicdn.com/kf/H7cbee27803bd443d9d4146d01540f84bd.png)
+* 1.获取用户凭证并将`HTTP`请求发送到`Keystone`
+![28](https://ae01.alicdn.com/kf/H16615861706b4a59b2c45516985bf101A.png)
+* 2.生成并发送回用于`nova-api`的身份验证令牌
+![29](https://ae01.alicdn.com/kf/Ha9984dc9b8d94443bc7b41c9bcf8f160H.png)
+* 3.将以“创建实例”形式指定的新实例参数转换为`REST API`请求并调用`nova-api`
+![30](https://ae01.alicdn.com/kf/H6436f08d87bf4d5a98d95bebe152efc6D.png)
+* 4.验证身份验证令牌和访问权限
+![31](https://ae01.alicdn.com/kf/Ha1dc89677a6e4d52b9120b2b1ddffdc08.png)
+* 5.验证新实例参数并为新实例创建初始数据库条目
+![32](https://ae01.alicdn.com/kf/H4b6e89328e0a4bb59630dd89019dcb73m.png)
+* 6.rpc.call. 请求实例计划。期望获取指定了主机`ID`的更新实例条目
+![33](https://ae01.alicdn.com/kf/H6e27a16f731348158b0f1acba6d5eebeq.png)
+* 7.通过过滤和加权找到合适的主机使用主机ID更新实例条目
+![34](https://ae01.alicdn.com/kf/Ha301f9f1a3f54bf79ef5243b071bcf2dq.png)
+* 8.rpc.cast 将“虚拟机配置”请求发送到已计划配置的主机上的`nova-compute`
+![35](https://ae01.alicdn.com/kf/H650ce71a77724729ad2bbb10c90289caJ.png)
+* 9.rpc.call 为实例保留和分配网络
+![36](https://ae01.alicdn.com/kf/Hbd39db9874cb478e8bc0ab22d229e39aY.png)
+* 10.从数据库中获取实例信息，为虚拟机监控程序驱动程序生成日期并在虚拟机监控程序上执行请求（通过`api`或`libvirt`）
+![37](https://ae01.alicdn.com/kf/Hd510a50dc71b4889ad35601c2f6cb6988.png)
+* 11.从`Glance`中按镜像ID获取镜像URL并从镜像存储中上传镜像
+![38](https://ae01.alicdn.com/kf/H9ad10e90c8214237bac450a17129bfeeO.png)
+* 12.轮询请求实例状态
+![39](https://ae01.alicdn.com/kf/Hcbfe4f5dd7ee4b728d12daa7ad5b138cM.png)
