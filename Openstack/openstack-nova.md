@@ -225,3 +225,78 @@ notebook: OpenStack
 ![38](https://ae01.alicdn.com/kf/H9ad10e90c8214237bac450a17129bfeeO.png)
 * 12.轮询请求实例状态
 ![39](https://ae01.alicdn.com/kf/Hcbfe4f5dd7ee4b728d12daa7ad5b138cM.png)
+## 虚拟机状态()
+`Status`|`AvailabilityZone`|`Task`|`Power state`
+-|-|-|-|-
+`Active`|`nova`|`None`|`Running`
+
+* `Status`->`vm_state`
+    * 虚拟机处在稳定状态，通过api产生的状态
+    * `Active`,`Error`,`Reboot`,`Build`,`Shutoff`
+
+`Status`|`AvailabilityZone`|`Task`|`Power state`
+-|-|-|-|-
+`Shutoff`|`nova`|`Powering-On`|`Shutdown`
+
+* `task state`
+    * 虚拟机处在中间状态，通过api产生的状态
+    * 表示虚拟机正在执行某种任务（操作）
+    * 当任务执行完成后，`task state`都会变成`None`
+    * `vm_state`的虚拟机的`task state`都是`None`
+    * `Powering-on`,`Suspending`等等带`ing`的状态
+* `power state`
+    * 从`hypervisor`上获取的虚拟机的状态
+    * 通过`libvirt`得到的状态
+![40](https://ae01.alicdn.com/kf/Hda6d3994b18a4125b3984c77c8b5f04aA.png)
+![41](https://ae01.alicdn.com/kf/H1274cbc4b16a465182d78c9b8a98b0f8X.png)
+![42](https://ae01.alicdn.com/kf/H00bcddce970940759bae3cbd964d69e40.png)
+* `vm state`,`power state`和`task state`的关系
+    * 三者没有必然的关系
+        * 被修复过的虚拟机，`power state`是`running`的虚拟机，`vm state`可能是`rescued`
+    * 三个状态之间会出现冲突
+        * 虚拟机内部关机，由于没有调用`api`,所以`vm state`还是`activce`,但是`power state`变成`shutoff`
+        * 但实际情况是`vm state`也会变成`shutoff`,由于openstack会根据三个状态来判断出当前合理的状态
+    * 每次`task state`的变化都会对应一个`task`,这个`task`会有唯一的`id`来表示
+        * 任务结束后，`task state`和`task id`都设置为空
+        * 只有某些特殊任务可以抢占其他任务，比如`force_delete`
+## `NOVA`操作的原理
+* migrate操作
+    * 虚拟机的冷迁移
+        * 从一台物理机迁移到另外一台物理机（或者本机）
+        * 涉及到物理机的选择，就要经过调度器（nova-scheduler）来选择
+    * 底层实现
+        * `Nova-scheduler`选出一台目标主机
+        * 将虚拟机关机，然后改变源目录的名称
+        * 如果本地存储，`ssh`到目标主机建立相同的目录，然后执行`scp`拷贝镜像文件
+        * 重新生成虚拟机配置文件`libvirt.xml`
+        * 启动虚拟机
+* `resize`操作
+    * 修改虚拟机的`flavor`
+        * `flavor`中包括：`cpu`，`memory`，`disk`等资源信息
+        * 虚拟机使用的资源变化了，原来物理机的资源还能否满足需求
+        * `resize`操作会触发重新调度，重新选择最佳的物理机
+    * 底层实现
+        * `resize`的底层实现与`migrate`大致是相同的，只不过多了一步是否更换`flavor`，
+        * 如果`flavor`有变化，以磁盘为例，通过执行`qemu-img resize`命令来改变磁盘文件的大小
+        * 对于处于`resized`状态的虚拟机，可以执行`revert_resize`和`confirm_resize`
+        * `resize_confirm_window>0`,超时后自动执行`rever_resize`
+* `rebuild`操作
+    * 重建虚拟机
+        * 保留原来虚拟机的所有信息，拿原来镜像重新创建虚拟机
+        * 默认保留主机名，`ip`，用户名和密码等信息
+        * 可以拿所有可用的镜像来`rebuild`,即用户可选的所有镜像
+            * `windows`->`linux`
+    * 底层实现
+        * 根据用户选择的镜像以及原虚拟机的信息重新创建一个虚拟机
+## 本地镜像缓存机制
+* `nova`缓存机制
+    * `/opt/stack/data/nova/instances`
+    ![43](https://ae01.alicdn.com/kf/Hfe2fc0e52e20410f9f68817c2dd24ce9U.png)
+    * 本地缓存目录：`_base/`
+    * 虚拟机运行目录：`xxxxx-xxx-xxx-xxx-xxxxxxxxxx`(虚拟机的ID)
+    * 重要命令：`qemu-img`
+    * 重要概念：派生镜像（`backing files`）
+    ```shell
+        qemu-img create -f qcow2 base.qcow2 -o backing_file=disk 10G
+    ```
+    * [《OpenStack虚拟机创建过程中镜像格式的的变化过程》](http://blog.chinaunix.net/uid-20940095-id-3504622.html)
