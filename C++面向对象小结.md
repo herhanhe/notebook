@@ -1,6 +1,6 @@
 ---
 title: C++面向对象小结
-tags: C++
+tags: 学习
 notebook: C++ 
 ---
 # C++面向对象小结
