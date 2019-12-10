@@ -24,18 +24,83 @@ notebook: OpenStack
     * 负责`DHCP agent`与`network`的调度
 
 ## 基本命令
-* 网络（network）
+* 网络（`network`）
 ```shell
     neutron net-create --tenant-id $tenant net1                                     --provider:network vlan 
                        --provider:physical_network physnet1 --provider:segmentation_id 100
 ``` 
-* 子网（subnet）
+* 子网（`subnet`）
 ```shell
     neutron subnet-create --tenant-id $tenant 
                           --name net1_subnet1 net1 192.168.100.0/24
 ```
-* 端口（port）
-  * port一般都是自动创建的，很少用户手动创建
+* 端口（`port`）
+  * `port`一般都是自动创建的，很少用户手动创建
+
+## `Devstack`自动化部署
+* `OVS+VLAN`
+  * 部署`master`分支为例
+  * 网络模式采用`OVS+VLAN`
+  ```
+      Q_PLUGIN=ml2
+      Q_ML2_TENANT_NETWORK_TYPE=vlan
+      TENANT_VLAN_RANGE=2100:2199
+      PHYSICAL_NETWORK=physnet1
+      Q_AGENT=openvswitch
+      Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
+      Q_ML2_PLUGIN_TYPE_DRIVERS=vlan
+      # ml2+ovs+vlan, if not configured, error happened:binding:vif_type=binding_failed
+      ENABLE_TENANT_TUNNELS=false
+      OVS_BRIDGE_MAPPINGS=physnet1:br-int
+  ```
+## `Neutron`服务
+模块|功能|说明
+-|-|-
+`neutron-server`|`API`服务|
+`neutron-*(I2)-agent`|网桥、安全组等|没网络、计算结点一个
+`neutron-dhcp-agent`|`Dhcp`服务|可多个
+`neutron-I3-agent`|`Router`/防火墙|可多个
+`neutron-vpn-agent`|`Router`/防火墙/`vpn`|可多个
+`neutron-lbaas-agent`|负载均衡|可多个
+`neutron-metadata-agent`|`Metadata代理服务`|
+
+![47](‪)
+
+## `ML2`
+![48]()
+
+## 常见的部署方式
+![49]()
+* `Ovs Vlan`计算结点
+  
+  ![50]()
+
+* `Ovs Vlan`网络结点
+
+  ![51]()
+
+* `Ovs Vxlan`计算结点
+
+  ![52]()
 
 ## Devstack自动化部署
-* OVS+VLAN
+* `Ovs + VLAN`
+  * 部署`master`分支为例
+  * 网络模式采用`OVS+VLAN`
+  ```shell
+    sudo ovs-vsctl  add-br br-eth0
+    sudo ovs-vsctl  add-port br-eth0 eth0
+  ```
+  ```
+    Q_PLUGIN=ml2
+    Q_ML2_TENANT_NETWORK_TYPE=vlan
+    TENANT_VLAN_RANGE=2100:2199
+    PHYSICAL_NETWORK=physnet1                                         
+    Q_AGENT=openvswitch
+    Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
+    Q_ML2_PLUGIN_TYPE_DRIVERS=vlan
+    # ml2+ovs+vlan, if not configured, error happened:binding:vif_type=binding_failed
+    OVS_BRIDGE_MAPPINGS=physnet1:br-eth0
+  ```
+
+
