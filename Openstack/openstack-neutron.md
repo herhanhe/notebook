@@ -102,5 +102,3 @@ notebook: OpenStack
     # ml2+ovs+vlan, if not configured, error happened:binding:vif_type=binding_failed
     OVS_BRIDGE_MAPPINGS=physnet1:br-eth0
   ```
-
-
