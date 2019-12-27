@@ -64,24 +64,25 @@ notebook: OpenStack
 `neutron-lbaas-agent`|负载均衡|可多个
 `neutron-metadata-agent`|`Metadata代理服务`|
 
-![47](‪)
+![47](https://pic1.superbed.cn/item/5defaf0c1f8f59f4d6e6ff9a.png)
 
 ## `ML2`
-![48]()
+![48](https://pic3.superbed.cn/item/5defaf9c1f8f59f4d6e75eb8.png)
 
 ## 常见的部署方式
-![49]()
+![49](https://pic1.superbed.cn/item/5defafb51f8f59f4d6e77479.png)
 * `Ovs Vlan`计算结点
   
-  ![50]()
+  ![50](https://pic2.superbed.cn/item/5defafe31f8f59f4d6e7a109.png)
 
 * `Ovs Vlan`网络结点
 
-  ![51]()
+  ![51](https://pic2.superbed.cn/item/5defaffb1f8f59f4d6e7b605.png)
 
 * `Ovs Vxlan`计算结点
 
-  ![52]()
+  ![52](https://pic1.superbed.cn/item/5defb02a1f8f59f4d6e7dc69.png)
+  ![53](https://pic2.superbed.cn/item/5defb1f21f8f59f4d6e90f41.png)
 
 ## Devstack自动化部署
 * `Ovs + VLAN`
