@@ -3,13 +3,21 @@ title: Keystone
 tags: 学习
 notebook: OpenStack
 ---
+
 # `Keystone`
+
 ---
+
 ## `Keystone`手动安装
+
 ### 二进制安装包
+
 [二进制安装](https://docs.openstack.org/keystone/stein/install/)
+
 ### 源码安装
+
 * 首先安装`keystone`依赖的操作系统的软件包
+
 ```shell
     $ sudo apt-get install git python-dev sqlite3 libxml2-dev libxslit1-dev libsasl2 libsqlite3-dev libssl-dev libldap2-dev
     $ sudo apt-get isntall mysql-server mysql-client python-mysqldb
