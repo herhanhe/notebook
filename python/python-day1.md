@@ -1,4 +1,3 @@
----
 title: python-day1-python基础1
 tags: 
 notebook: pyhton
@@ -40,7 +39,3 @@ notebook: pyhton
 
 这是因为计算机不能直接认识并执行我们写的语句,它只能认识机器语言(是二进制的形式)
 
-```mermaid
-    graph TD
-        A --> B
-```
