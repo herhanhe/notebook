@@ -7,7 +7,7 @@ notebook: pyhton
 
 ## 1.`python`介绍
 
-`python`的创始人为吉多·范罗苏姆（`Guido van Rossum`）。1989年的圣诞节期间，吉多·范罗苏姆为了在阿姆斯特丹打发时间，决心开发一个新的脚本解释程序，作为`ABC`语言的一种继承。 
+`python`的创始人为吉多·范罗苏姆（`Guido van Rossum`）。1989年的圣诞节期间，吉多·范罗苏姆为了在阿姆斯特丹打发时间，决心开发一个新的脚本解释程序，作为`ABC`语言的一种继承。
 
 * **目前Python主要应用领域：**
   * **云计算:** 云计算最火的语言， 典型应用`OpenStack`
@@ -28,9 +28,9 @@ notebook: pyhton
   * 豆瓣: 公司几乎所有的业务均是通过`Python`开发的
   * 知乎: 国内最大的问答社区，通过`Python`开发(国外`Quora`)
   * 春雨医生：国内知名的在线医疗网站是用`Python`开发的
-  * 除上面之外，还有搜狐、金山、腾讯、盛大、网易、百度、阿里、淘宝 、土豆、新浪、果壳等公司都在使用`Python`完成各种各样的任务。 
+  * 除上面之外，还有搜狐、金山、腾讯、盛大、网易、百度、阿里、淘宝 、土豆、新浪、果壳等公司都在使用`Python`完成各种各样的任务。
 
-### `Python` 是一门什么样的语言？
+### `Python` 是一门什么样的语言?
 
 ---
 
@@ -321,7 +321,59 @@ notebook: pyhton
     print（pwd）
 ```
 
-## 8.模块初识
+## 8.格式化输出
+> 格式化输出:
+> ------- info of herhan --------
+> Name:herhan
+> Age:12
+> Job:it
+> Salary:567
+
+```python
+  #!/usr/bin/env python
+  # -*-coding:utf-8 -*-
+  # Author:herhan
+
+  name = input("name :")
+  age = int(input("age :"))
+  print(type(age))
+  job = input("job :")
+  salary = input("salary :")
+  
+  # 方式1
+  msg = '''
+  ------- info of %s --------
+  Name:%s
+  Age:%d
+  Job:%s
+  Salary:%s
+  ''' % (name,name,age,job,salary)
+  
+  # 方式2
+  msg1 = '''
+  ------- info of {_name} --------
+  Name:{_name}
+  Age:{_age}
+  Job:{_job}
+  Salary:{_salary}
+  '''.format(
+     _name = name,
+     _age = age,
+     _job = job,
+     _salary = salary)
+  # 方式3
+  msg2 = '''
+  ------- info of {0} --------
+  Name:{0}
+  Age:{1}
+  Job:{2}
+  Salary:{3}
+  '''.format(name,age,job,salary)
+
+  print(msg2)
+```
+
+## 9.模块初识
 
 * `python`的强大之外在于他有非常丰富和强大的标准库和第三方库，几乎你想实现的任何功能都有相应的`python`库支持,以后的课程中会深入讲解常用到的各种库，现在，我们先来象征性的学2个简单的
 
@@ -398,7 +450,7 @@ notebook: pyhton
 
 * 此时你就要把这个`tab.py`放到`python`全局环境变量目录里啦，基本一般都放在一个叫 `Python/2.7/site-packages` 目录下，这个目录在不同的OS里放的位置不一样，用 `print(sys.path)` 可以查看python环境变量列表.
 
-## 9. `.pyc`是个什么鬼？
+## 10. `.pyc`是个什么鬼？
 
 1. `Python`是一门解释型语言？
    * 我初学`Python`时，听到的关于`Python`的第一句话就是，`Python`是一门解释性语言，我就这样一直相信下去，直到发现了`*.pyc`文件的存在。如果是解释型语言，那么生成的`*.pyc`文件是什么呢？`c`应该是`compiled`的缩写才对啊！为了防止其他学习`Python`的人也被这句话误解，那么我们就在文中来澄清下这个问题，并且把一些基础概念给理清。
@@ -430,7 +482,7 @@ notebook: pyhton
    * 当`python`程序第二次运行时，首先程序会在硬盘中寻找`pyc`文件，如果找到，则直接载入，否则就重复上面的过程。
    * 所以我们应该这样来定位`PyCodeObject`和`pyc`文件，我们说`pyc`文件其实是`PyCodeObject`的一种持久化保存方式。
 
-## 10.数据类型初始
+## 11.数据类型初始
 
 1. **数字**
   
@@ -473,7 +525,7 @@ notebook: pyhton
 
       #输出： I am alex
     ```
-    
+
     > PS: 字符串是`%S`;整数`%d`;浮点数`%f`
    * **字符串常用功能**
      * 移除空白
@@ -530,11 +582,260 @@ notebook: pyhton
      * 循环
      * 长度
 
-## 11.数据运算
+## 12.数据运算
 
 * 算数运算：
 
   运算符|描述|实例
   -|-|-
-  +|加——两个对象相加|a+b输出结果30
-  -|减——得到负数或是一个数减去另一个数
+  +|加——两个对象相加|a + b输出结果30
+  -|减——得到负数或是一个数减去另一个数|a - b输出结果-10
+  `*`|乘——两个数相乘或是返回一个被重复若干次的字符串|a * b输出结果200
+  /|除——x除以y|b / a输出结果2
+  %|取模——返回除法的余数|b % a输出结果0
+  `**`|幂——返回x的y次幂|a ** b为10的2次方，输出结果100
+  //|取整除——返回商的整数部分|9 // 2输出结果4，9.0 // 2.0输出结果4.0
+
+* 比较运算：
+
+  运算符|描述|实例
+  -|-|-
+  ==|等于——比较对象是否相等|（a == b）返回False。
+  !=|不等于——比较两个对象是否不相等|（a != b）返回true
+  <>|不等于——比较两个对象是否不相等|（a <> b）返回true。这个运算符类似!=。
+  `>`|大于——返回x是否大于y|（a > b)返回False。
+  <|小于——返回x是否小于y。所有比较运算符返回1表示假。这分别与特殊的变量True和False等价。注意，这些变量名的大写。|（a < b）返回true
+  `>=`|大于等于——返回x是否大于等于y。|（a >= b）返回False。
+  <=|小于等于——返回x是否小于等于y。|（a <= b）返回true。
+
+* 赋值运算：
+
+  运算符|描述|实例
+  -|-|-
+  =|简单的赋值运算符|c= a + b将a + b的运算结果赋值为c
+  +=|加法赋值运算符|c += a等效于c = c + a
+  -=|减法赋值运算符|c -= a等效于c = c - a
+  `*=`|乘法赋值运算符|c `*=` a等效于c = c * a
+  /=|除法赋值运算符|c /= a等效于c = c / a
+  %=|取模赋值运算符|c %= a等效于c = c % a
+  `**=`|幂赋值运算符|c `**=` a等效于c = c ** a
+  //=|取整除赋值运算符|c //= a等效于c = c // a
+
+* 逻辑运算：
+
+  运算符|描述|实例
+  -|-|-
+  and|布尔"与"——如果x为False,x and y返回False,否则它返回y的计算值。|（a and b）返回true。
+  or|布尔"或"——如果x是True,它返回True,否则它返回y的计算值。|（a or b）返回true。
+  not|布尔"非"——如果x为True,返回False,如果x为False,它返回True。|not（a and b）返回false。
+
+* 成员运算：
+
+  运算符|描述|实例
+  -|-|-
+  in|如果在指定的序列中找到值返回True,否则返回False。|x在y序列中返回True。
+  not in|如果在指定的序列中没有找到值返回True,否则返回False。|x不在y序列中，如果x不在y序列中返回True。
+
+* 身份运算：
+
+  运算符|描述|实例
+  -|-|-
+  is|is是判断两个标识符是不是引用自一个对象|x is y,如果id(x)等于id(y),is返回结果1。
+  is not|is not是判断两个标识符是不是引用自不同对象|x is not y,如果id(x)不等于id(y),is not返回值1
+
+* 位运算：
+
+  运算符|描述|实例
+  -|-|-
+  &|按位与运算符|（a & b）输入结果12,二进制解释：0000 1100
+  `|`|按位或运算符|（a `|` b）输入结果61,二进制解释：0011 1101
+  ^|按位异或运算符|（a ^ b）输入结果49,二进制解释：0011 0001
+  ~|按位取反运算符|（~a）输入结果-61,二进制解释：1100 0011
+  <<|左移动运算符|a<<2输出结果240,二进制解释：1111 0000
+  `>>`|右移动运算符|a>>2输出结果15,二进制解释：0000 1111
+
+  ```python
+    #!/usr/bin/python
+
+    a = 60      # 60 = 0011 1100
+    b = 13      # 13 = 0000 1101
+    c = 0
+
+    c = a & b;  # 12 = 0000 1100
+    print "Line 1 - Value of c is ", c
+
+    c = a | b;  # 61 = 0011 1101
+    print "Line 2 - Value of c is ", c
+
+    c = a ^ b;  # 49 = 0011 0001
+    print "Line 3 - Value of c is ", c
+
+    c = ~a;     # -61 = 1100 0011
+    print "Line 4 - Value of c is ", c
+
+    c = a << 2; # 240 = 1111 0000
+    print "Line 5 - Value of c is ", c
+
+    c = a >> 2; # 15 = 0000 1111
+    print "Line 6 - Value of c is ", c
+  ```
+
+* 运算符优先级：
+
+运算符|描述
+  -|-
+  **|指数（最高优先级）
+  ~ + -|按位翻转,一元加号和减号（最后两个的方法名为+@和-@）
+  `*` / % //|乘,除,取模和取整数
+  `+` -|加法减法
+  `>>` <<|右移,左移运算符
+  &|位'AND'
+  ^ `|`|位运算符
+  <= < > >=|比较运算符
+  <> == !=|等于运算符
+  = %= /= //= -= += *= **=|赋值运算符
+  is is not|身份运算符
+  in not in|成员运算符
+  not or and|逻辑运算符
+
+## 13.表达式`if ... else`
+
+* 场景1 用户登录验证
+
+  ```python
+    # 提示输入用户名和密码
+
+    # 验证用户名和密码
+    #   如果错误,则输出用户名或密码错误
+    #   如果成功,则输出 欢迎,xxx!
+
+    #!/usr/bin/env python
+    # -*- coding: encoding -*-
+
+    import getpass
+
+    name = raw_input('请输入用户名：')
+    pwd = getpass.getpass('请输入密码：')
+
+    if name == "alex" and pwd == "cmd":
+        print("欢迎，alex！")
+    else:
+        print("用户名和密码错误")
+  ```
+
+* 场景2 猜年龄游戏
+  > 在程序里设定好的年龄，然后启动程序让用户猜测，用户出入后，根据他的输入提示用户输入的是否正确，如果错误，提示是猜大了还是猜小了
+
+  ```python
+  #!/usr/bin/env python
+  # -*- coding: utf-8 -*-
+
+  my_age = 28
+
+  user_input = int(input("input your guess num:"))
+
+  if user_input == my_age:
+      print("Congratulations,you got it !")
+  elif user_input < my_age:
+      print("Oops,think bigger!")
+  else:
+      print("think smaller!")
+  ```
+
+  > 外层变量，可以被内层代码使用
+  > 内层变量，不应被外层代码使用
+
+## 14.表达式for loop
+
+* 最简单的循环10次
+
+  ```python
+    #_*_coding:utf-8_*_
+    __author__ = 'Alex Li'
+
+
+    for i in range(10):
+        print("loop:", i )
+  ```
+
+* 需求1：还是上面的程序，但是遇到小于5的循环次数就不走了，直接跳入下一次循环
+
+  ```python
+    for i in range(10):
+        if i<5:
+            continue  #不住下走了，直接进入下一次loop
+        print("loop:",i )
+  ```
+
+* 需求2：还是上面的程序，但是遇到大于5的循环次数就不走了，直接退出
+
+  ```python
+    for i in range(10):
+        if i>5:
+            break  #不住下走了，直接跳出整个loop
+        print("loop:", 1 )
+  ```
+
+## 15.while loop
+
+> **有一种循环叫死循环，一经触发，就运行个天荒地老、海枯石烂**
+
+  ```python
+    count = 0
+    while True:
+        print("你是风儿我是沙,缠缠绵绵到天涯...",count)
+        count += 1
+  ```
+
+> 其实除了时间，没有什么是永恒的，死loop还是少写为好
+> 上面的代码循环100次就退出吧
+
+  ```python
+      count = 0
+      while True:
+          print("你是风儿我是沙,缠缠绵绵到天涯...",count)
+          count +=1
+          if count == 100:
+              print("去你妈的风和沙,你们这些脱了裤子是人,穿上裤子是鬼的臭男人..")
+              break
+  ```
+
+> 回到上面for 循环的例子，如何实现让用户不断的猜年龄，但只给最多3次机会，再猜不对就退出程序。
+
+  ```python
+    #!/usr/bin/env python
+    # -*- coding: utf-8 -*-
+
+
+    my_age = 28
+
+    count = 0
+    while count < 3:
+        user_input = int(input("input your guess num:"))
+
+        if user_input == my_age:
+            print("Congratulations, you got it !")
+            break
+        elif user_input < my_age:
+            print("Oops,think bigger!")
+        else:
+            print("think smaller!")
+        count += 1 #每次loop 计数器+1
+    else:
+        print("猜这么多次都不对,你个笨蛋.")
+  ```
+
+## 16.练习
+
+* 作业二：编写登陆接口
+
+  * 输入用户名密码
+  * 认证成功后显示欢迎信息
+  * 输错三次后锁定
+
+* 作业三：多级菜单
+  * 三级菜单
+  * 可依次选择进入各子菜单
+  * 所需新知识点：列表、字典
+
+* 参考：[https://github.com/herhanhe/s14/tree/master/day01]
