@@ -3,7 +3,7 @@ title: python-day1-python基础1
 tags: 
 notebook: pyhton
 ---
-# `python`基础
+# `python`基础1
 
 ## 1.`python`介绍
 
@@ -385,9 +385,24 @@ notebook: pyhton
 
   import sys
 
+  print(sys.path)
+
+  #输出 全局环境变量 模块的路径
+  ['E:\\project\\s14\\day01', 'E:\\project\\s14', 
+  'D:\\software\\JetBrains\\PyCharm 2019.3.1\\plugins\\python\\helpers\\pycharm_display', 
+  'D:\\software\\Python\\Python38\\python38.zip', 
+  'D:\\software\\Python\\Python38\\DLLs', 
+  'D:\\software\\Python\\Python38\\lib', #标准库
+  'D:\\software\\Python\\Python38', 
+  'E:\\project\\s14\\venv', 
+  'E:\\project\\s14\\venv\\lib\\site-packages', 
+  'E:\\project\\s14\\venv\\lib\\site-packages\\setuptools-40.8.0-py3.8.egg', 
+  'E:\\project\\s14\\venv\\lib\\site-packages\\pip-19.0.3-py3.8.egg', 
+  'D:\\software\\JetBrains\\PyCharm 2019.3.1\\plugins\\python\\helpers\\pycharm_matplotlib_backend']
+
   print(sys.argv)
 
-  #输出
+  #输出 传递的参数获取 
   $ python test.py hello world
   ['test.py','hello','world']  #把执行脚本时传递的参数获取到了
 ```
@@ -401,6 +416,7 @@ notebook: pyhton
   import os
 
   os.system("df -h") #调用系统命令
+  os.mkdir("new_dir")#当前目录创建文件夹
 ```
 
 * 完全结合一下
@@ -533,54 +549,37 @@ notebook: pyhton
      * 长度
      * 索引
      * 切片
-
-4. 列表
-
-   * 创建列表：
-
+4. **bytes型**
+   * `Python3` 新增 `bytes` 类型，是指一堆字节的集合，十六进制表现形式，两个十六进制数构成一个 `byte` ，以 b 开头的字符串都是 `bytes` 类型。
+   * 计算机只能存储二进制，字符、图片、视频、音乐等想存到硬盘上，必须以正确的方式编码成二进制后再存，但是转成二进制后不是直接以 0101010 的形式表示的，而是用一种叫 bytes() 的类型来表示
+  
     ```python
-      name_list = ['alex','seven','eric']
-      #或
-      name_list = list(['alex','seven','eric'])
+      str0 = '我是中国人'
+      str0.encode(encoding='utf-8')
+      #输出
+      b'\xe6\x88\x91\xe6\x98\xaf\xe4\xb8\xad\xe5\x9b\xbd\xe4\xba\xba'
     ```
 
-   * 基本操作：
-     * 索引
-     * 切片
-     * 追加
-     * 删除
-     * 长度
-     * 切片
-     * 循环
-     * 包含
+   * **编码&解码**
 
-5. 元组（不可变列表）
-
-   * 创建元组
+    ![4](https://pic.downk.cc/item/5e4ba1d448b86553ee50ac99.png)
 
     ```python
-      ages = (11,22,33,44,55)
-      #或
-      ages = tuple((11,22,33,44,55))
+      str0 = '我是中国人'
+      # utf-8 编码
+      result = str0.encode(encoding = 'utf-8')
+      # utf-8 解码
+      result1=result.decode(encoding = 'utf-8')
+      print(result)
+      print(result1)
+      #输出
+      b'\xe6\x88\x91\xe6\x98\xaf\xe4\xb8\xad\xe5\x9b\xbd\xe4\xba\xba'
+      '我是中国人'
     ```
 
-6. 字典（无序）
+   * 在 `Python3` 中内存里的字符串是以 `Unicode` 编码的，`Unicode` 的其中一个特性就是跟所有语言编码都有映射关系，所以 `UTF-8` 格式的文件，在 `Windows` 电脑上若是不能看，就可以把 `UTF-8` 先解码成 `Unicode` ，再由 `Unicode` 编码成 `GBK` 就可以了。
 
-   * 创建字典
-
-    ```python
-      person = {"name": "mr.wu", 'age': 18}
-      #或
-      person = dict({"name": "mr.wu", 'age': 18})
-    ```
-
-   * 常用操作
-     * 索引
-     * 新增
-     * 删除
-     * 键、值、键值对
-     * 循环
-     * 长度
+    ![5](https://pic.downk.cc/item/5e4ba4f448b86553ee5146cc.png)
 
 ## 12.数据运算
 
@@ -697,6 +696,16 @@ notebook: pyhton
   is is not|身份运算符
   in not in|成员运算符
   not or and|逻辑运算符
+
+
+* **三元运算**
+
+  ```python
+    result = 值1 if 条件 else 值2
+  ```
+  
+  * 如果条件为真：`result` = 值1
+  * 如果条件为假：`result` = 值2
 
 ## 13.表达式`if ... else`
 
