@@ -841,12 +841,12 @@ notebook: pyhton
   > 2.认证成功后显示欢迎信息
   > 3.输错三次后锁定
 
-* 参考：[homework.py](https://github.com/herhanhe/s14/tree/master/day01)
+* 参考：[login.py](https://github.com/herhanhe/s14/blob/master/day01/login.py)
 
 * 作业2：多级菜单
   > 1.三级菜单
   > 2.可依次选择进入各子菜单
   > 3.所需新知识点：列表、字典
 
-* 参考：[homework2.py](https://github.com/herhanhe/s14/tree/master/day01)
+* 参考：[menu.py](https://github.com/herhanhe/s14/blob/master/day01/menu.py)
   

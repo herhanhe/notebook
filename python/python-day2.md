@@ -787,7 +787,7 @@ notebook: pyhton
   > 5.用户入口：1.商品信息存在文件里  2.已购商品，余额记录。
   > 6.商家入口: 1.可以添加商品，修改商品价格
 
-  * 参考：[homework1.py](https://github.com/herhanhe/s14/tree/master/day02)
+  * 参考：[shopping.py](https://github.com/herhanhe/s14/tree/master/day02/shopping.py)
 
 * 程序: 三级菜单
 
@@ -796,4 +796,4 @@ notebook: pyhton
   > 2.可返回上一级
   > 3.可随时退出程序
 
-  * 参考：[homework2.py](https://github.com/herhanhe/s14/tree/master/day02)
+  * 参考：[level_3_menu.py](https://github.com/herhanhe/s14/tree/master/day02/level_3_menu.py)
