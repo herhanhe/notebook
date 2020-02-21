@@ -3,9 +3,35 @@ title: python-day1-python基础1
 tags: 
 notebook: pyhton
 ---
-# `python`基础1
+# Python基础1
 
-## 1.`python`介绍
+<!-- TOC -->
+
+- [Python基础1](#python%e5%9f%ba%e7%a1%801)
+  - [1.Python介绍](#1python%e4%bb%8b%e7%bb%8d)
+    - [Python是一门什么样的语言?](#python%e6%98%af%e4%b8%80%e9%97%a8%e4%bb%80%e4%b9%88%e6%a0%b7%e7%9a%84%e8%af%ad%e8%a8%80)
+    - [Python的优缺点](#python%e7%9a%84%e4%bc%98%e7%bc%ba%e7%82%b9)
+    - [Python解释器](#python%e8%a7%a3%e9%87%8a%e5%99%a8)
+  - [2.Python的发展史](#2python%e7%9a%84%e5%8f%91%e5%b1%95%e5%8f%b2)
+  - [3.Python安装](#3python%e5%ae%89%e8%a3%85)
+  - [4.Hello World程序](#4hello-world%e7%a8%8b%e5%ba%8f)
+  - [5.变量](#5%e5%8f%98%e9%87%8f)
+  - [6.字符编码](#6%e5%ad%97%e7%ac%a6%e7%bc%96%e7%a0%81)
+    - [注释](#%e6%b3%a8%e9%87%8a)
+  - [7.用户输入](#7%e7%94%a8%e6%88%b7%e8%be%93%e5%85%a5)
+  - [8.格式化输出](#8%e6%a0%bc%e5%bc%8f%e5%8c%96%e8%be%93%e5%87%ba)
+  - [9.模块初识](#9%e6%a8%a1%e5%9d%97%e5%88%9d%e8%af%86)
+  - [10. `.pyc`是个什么鬼？](#10-pyc%e6%98%af%e4%b8%aa%e4%bb%80%e4%b9%88%e9%ac%bc)
+  - [11.数据类型初始](#11%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b%e5%88%9d%e5%a7%8b)
+  - [12.数据运算](#12%e6%95%b0%e6%8d%ae%e8%bf%90%e7%ae%97)
+  - [13.表达式`if ... else`](#13%e8%a1%a8%e8%be%be%e5%bc%8fif--else)
+  - [14.表达式for loop](#14%e8%a1%a8%e8%be%be%e5%bc%8ffor-loop)
+  - [15.while loop](#15while-loop)
+  - [16.练习](#16%e7%bb%83%e4%b9%a0)
+
+<!-- /TOC -->
+
+## 1.Python介绍
 
 `python`的创始人为吉多·范罗苏姆（`Guido van Rossum`）。1989年的圣诞节期间，吉多·范罗苏姆为了在阿姆斯特丹打发时间，决心开发一个新的脚本解释程序，作为`ABC`语言的一种继承。
 
@@ -30,7 +56,7 @@ notebook: pyhton
   * 春雨医生：国内知名的在线医疗网站是用`Python`开发的
   * 除上面之外，还有搜狐、金山、腾讯、盛大、网易、百度、阿里、淘宝 、土豆、新浪、果壳等公司都在使用`Python`完成各种各样的任务。
 
-### `Python` 是一门什么样的语言?
+### Python是一门什么样的语言?
 
 ---
 
@@ -63,7 +89,7 @@ notebook: pyhton
   * 强类型定义语言在速度上可能略逊色于弱类型定义语言，但是强类型定义语言带来的严谨性能够有效的避免许多错误。另外，“这门语言是不是动态语言”与“这门语言是否类型安全”之间是完全没有联系的！
 * `python`是一门动态解释性的强类型定义语言
 
-### `Python`的优缺点
+### Python的优缺点
 
 ---
 
@@ -79,7 +105,7 @@ notebook: pyhton
   2. 代码不能加密，因为`PYTHON`是解释性语言，它的源码都是以名文形式存放的，不过我不认为这算是一个缺点，如果你的项目要求源代码必须是加密的，那你一开始就不应该用`Python`来去实现。
   3. 线程不能利用多`CPU`问题，这是`Python`被人诟病最多的一个缺点，`GIL`即全局解释器锁（`Global Interpreter Lock`），是计算机程序设计语言解释器用于同步线程的工具，使得任何时刻仅有一个线程在执行，`Python`的线程是操作系统的原生线程。在`Linux`上为`pthread`，在`Windows`上为`Win thread`，完全由操作系统调度线程的执行。一个`python`解释器进程内有一条主线程，以及多条用户程序的执行线程。即使在多核`CPU`平台上，由于`GIL`的存在，所以禁止多线程的并行执行。关于这个问题的折衷解决方法，我们在以后线程和进程章节里再进行详细探讨。
 
-### `Python`解释器
+### Python解释器
 
 ---
 
@@ -102,7 +128,7 @@ notebook: pyhton
 * **IronPython**
   * `IronPython`和`Jython`类似，只不过`IronPython`是运行在微软`.Net`平台上的`Python`解释器，可以直接把`Python`代码编译成`.Net`的字节码。
 
-## 2.`Python`的发展史
+## 2.Python的发展史
 
 * 1989年，为了打发圣诞节假期，`Guido`开始写`Python`语言的编译器。`Python`这个名字，来自`Guido`所挚爱的电视剧`Monty Python’s Flying Circus`。他希望这个新的叫做`Python`的语言，能符合他的理想：创造一种`C`和`shell`之间，功能全面，易学易用，可拓展的语言。
 * 1991年，第一个`Python`编译器诞生。它是用`C`语言实现的，并能够调用`C`语言的库文件。从一出生，`Python`已经具有了：类，函数，异常处理，包含表和词典在内的核心数据类型，以及模块为基础的拓展系统。
@@ -121,7 +147,7 @@ notebook: pyhton
 * `Python 3.4 - March 16, 2014`
 * `Python 3.5 - September 13, 2015`
 
-## 3.`Python`安装
+## 3.Python安装
 
 * `windows`
   * 下载安装包
@@ -130,7 +156,7 @@ notebook: pyhton
 * `linux,mac`
   * 无需安装，原装Python环境
 
-## 4.`Hello World`程序
+## 4.Hello World程序
 
 * **指定解释器**
   * 上一步中执行 `python hello.py` 时，明确的指出 `hello.py` 脚本由 `python` 解释器来执行。
