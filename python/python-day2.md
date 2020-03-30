@@ -14,6 +14,8 @@ notebook: pyhton
         - [元组](#元组)
     - [2.字符串的操作](#2字符串的操作)
     - [3.字典操作](#3字典操作)
+    - [4. 集合操作](#4-集合操作)
+    - [5.文件操作](#5文件操作)
     - [练习](#练习)
 
 <!-- /TOC -->
@@ -283,6 +285,20 @@ notebook: pyhton
     3
     2
     1
+
+    for index,item in enumerate(names)：
+        print(index,item)
+    
+    #输出
+    0 herhan
+    1 Rain
+    2 Jone
+    3 Jim
+    4 Amy
+    5 3
+    6 2
+    7 1
+
   ```
 
 ### 元组
@@ -783,8 +799,273 @@ notebook: pyhton
     #方法2
     for k,v in info.items(): #会先把dict转成list,数据里大时莫用
         print(k,v)
+
+    #循环遍历key
+    for key in info.keys():
+        print(key)
+
+    #按顺序循环遍历key
+    for key in sorted(info.keys()):
+        print(key)
+
+    #循环遍历值
+    for item in info.values():
+        print(item)
+
+    #循环遍历值去重
+    for item in set(info.values()):
+        print(item)
   ```
 
+## 4. 集合操作
+
+* 集合是一个无序的，不重复的数据组合，它的主要作用如下
+  
+  * 去重，把一个列表变成集合，就自动去重了
+  * 关系测试，测试两组数据之前的交集、差集、并集等关系
+
+* 常用操作
+
+  ```python
+    s = set([3,5,9,10,'e'])    #创建一个数值集合
+
+    x = set("x")
+
+    t = set("Hello")      #创建一个唯一字符的集合
+
+    a = t | s     #t和s的并集
+    print(a)
+    #输出
+    {'H', 3, 5, 'o', 9, 10, 'l', 'e'}
+
+    b = t & s     #t和s的交集
+    print(b)
+    #输出
+    {'e'}
+
+    c = t - s     #求差集（项在t中,但不在s中）
+    print(c)
+    #输出
+    {'H', 'l', 'o'}
+
+    d = t ^ s     #对称差集（项在t或s中，但不会同时出现在二者中）
+    print(d)
+    #输出
+    {'H', 3, 5, 'l', 9, 10, 'o'}
+
+    #基本操作：
+
+    t.add('x')    #添加一项
+    # Add an element to a set.
+    #This has no effect if the element is already present.
+    print(t)
+    #输出
+    {'o', 'l', 'e', 'x', 'H'}
+
+    s.update([10,37,42])   #在s中添加多项
+    # Update a set with the union of itself and others.
+    print(s)
+    # 输出
+    {3, 5, 37, 9, 10, 42, 'e'}
+
+    t.remove('H')   #可以删除一项
+    #Remove an element from a set; it must be a member.
+    #If the element is not a member, raise a KeyError.
+    print(t)
+    #输出
+    {'l', 'x', 'e', 'o'}
+
+    t.discard('s') #删除指定项 如不存在 返回none
+    #Remove an element from a set if it is a member.
+    #If the element is not a member, do nothing.
+
+    t.pop()   #可以随机删除一项
+    #Remove and return an arbitrary set element.
+    #Raises KeyError if the set is empty.
+    print(t)
+    #输出
+     {'l', 'x', 'e'}
+
+    print(len(s))
+    #Return the number of items in a container.
+    #输出
+    7
+
+    print(x in s)       # 测试 x 是否是 s 的成员
+    print(x not in s)   # 测试 x 是否不是 s 的成员
+    #输出
+    False
+    True
+
+    #测试是否 s 中的每一个元素都在 t 中
+    print(s.issubset(t))
+    #s <= t
+    #Report whether another set contains this set.
+    #输出
+    False
+
+    #测试是否 t 中的每一个元素都在 s 中
+    print(s.issuperset(t))
+    #s >= t
+    #Report whether this set contains another set
+    #输出
+    False
+
+    #返回一个新的 set 包含 s 和 t 中的每一个元素
+    #t和s的并集
+    print(s.union(t))  
+    #Return the union of sets as a new set.
+    #(i.e. all elements that are in either set.)
+    #s | t  
+    #输出
+    {3, 'e', 5, 37, 'o', 9, 42, 10, 'l', 'x'}
+  
+    #返回一个新的 set 包含 s 和 t 中的公共元素
+    #t和s的交集
+    print(s.intersection(t))  
+    #Return the intersection of two sets as a new set.
+    #(i.e. all elements that are in both sets.)
+    #s & t
+    #输出
+    {'e'}
+
+    #返回一个新的 set 包含 s 中有但是 t 中没有的元素
+    print(s.difference(t))  
+    #求差集（项在t中,但不在s中）
+    #Return the difference of two or more sets as a new set.
+    #(i.e. all elements that are in this set but not the others.)
+    #s - t  
+    #输出
+    {3, 37, 5, 9, 10, 42}
+
+    #返回一个新的 set 包含 s 和 t 中不重复的元素
+    print(s.symmetric_difference(t))
+    #对称差集（项在t或s中，但不会同时出现在二者中）  
+    #Return the symmetric difference of two sets as a new set.
+    #(i.e. all elements that are in exactly one of the sets.)
+    #s ^ t
+    #输出
+    {'x', 3, 5, 37, 'l', 9, 10, 42, 'o'}  
+
+    #判断集合有无交集
+    print(s.isdisjoint(t))
+    #Return True if two sets have a null intersection.
+    #输出
+    False
+
+    #返回 set “s”的一个浅复制
+    s.copy()  
+
+  ```
+
+## 5.文件操作
+
+* 对文件操作流程
+  1. 打开文件，得到文件句柄并赋值给一个变量
+  2. 通过句柄对文件进行操作
+  3. 关闭文件
+* 现有文件如下
+  
+  ```python
+    Somehow, it seems the love I knew was always the most destructive kind
+    不知为何，我经历的爱情总是最具毁灭性的的那种
+    Yesterday when I was young  
+    昨日当我年少轻狂
+    The taste of life was sweet
+    生命的滋味是甜的
+    As rain upon my tongue
+    就如舌尖上的雨露
+    I teased at life as if it were a foolish game
+    我戏弄生命 视其为愚蠢的游戏
+    The way the evening breeze
+    就如夜晚的微风
+    May tease the candle flame
+    逗弄蜡烛的火苗
+    The thousand dreams I dreamed
+    我曾千万次梦见
+    The splendid things I planned
+    那些我计划的绚丽蓝图
+    I always built to last on weak and shifting sand
+    但我总是将之建筑在易逝的流沙上
+    I lived by night and shunned the naked light of day
+    我夜夜笙歌 逃避白昼赤裸的阳光
+    And only now I see how the time ran away
+    事到如今我才看清岁月是如何匆匆流逝
+    Yesterday when I was young
+    昨日当我年少轻狂
+    So many lovely songs were waiting to be sung
+    有那么多甜美的曲儿等我歌唱
+    So many wild pleasures lay in store for me
+    有那么多肆意的快乐等我享受
+    And so much pain my eyes refused to see
+    还有那么多痛苦 我的双眼却视而不见
+    I ran so fast that time and youth at last ran out
+    我飞快地奔走 最终时光与青春消逝殆尽
+    I never stopped to think what life was all about
+    我从未停下脚步去思考生命的意义
+    And every conversation that I can now recall
+    如今回想起的所有对话
+    Concerned itself with me and nothing else at all
+    除了和我相关的 什么都记不得了
+    The game of love I played with arrogance and pride
+    我用自负和傲慢玩着爱情的游戏
+    And every flame I lit too quickly, quickly died
+    所有我点燃的火焰都熄灭得太快
+    The friends I made all somehow seemed to slip away
+    所有我交的朋友似乎都不知不觉地离开了
+    And only now I'm left alone to end the play, yeah
+    只剩我一个人在台上来结束这场闹剧
+    Oh, yesterday when I was young
+    噢 昨日当我年少轻狂
+    So many, many songs were waiting to be sung
+    有那么那么多甜美的曲儿等我歌唱
+    So many wild pleasures lay in store for me
+    有那么多肆意的快乐等我享受
+    And so much pain my eyes refused to see
+    还有那么多痛苦 我的双眼却视而不见
+    There are so many songs in me that won't be sung
+    我有太多歌曲永远不会被唱起
+    I feel the bitter taste of tears upon my tongue
+    我尝到了舌尖泪水的苦涩滋味
+    The time has come for me to pay for yesterday
+    终于到了付出代价的时间 为了昨日
+    When I was young
+    当我年少轻狂
+  ```
+
+* 基本操作
+  `f = open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None)`
+  file
+
+  ```python
+    f = open('lyrics',r,encoding = "utf-8")    #打开文件
+    data = f.read()   #读取剩下的所有内容，文件大时不要用
+    print(data)   #打印文件
+
+    f.close()   #关闭文件
+  ```
+
+* 打开文件的模式有：
+  * `r` ,只读模式（默认）
+  * `w` ,只写模式。【不可读；不存在则创建；存在则删除内容；】
+  * `a` ,追加模式。【可读；不存在则创建；存在则只追加内容；】
+
+* `"+"`表示可以同时读写某个文件
+  * `r+` ,可读写文件。【可读；可写；可追加】
+  * `w+` ,写读
+  * `a+` ,同`a`
+
+* `"U"`表示在读取时，可以将`\r` `\n` `\r\n`自动转换成`\n`(与`r`或`r+`模式同使用)
+  * `rU`
+  * `r+U`
+
+* `"b"`表示处理二进制文件（如：`FTP`发送上传`ISO`镜像文件，`linux`可忽略，`windows`处理二进制文件时需标注）
+  * `rb`
+  * `wb`
+  * `ab`
+
+
+    
 ## 练习
 
 * 程序：购物车程序

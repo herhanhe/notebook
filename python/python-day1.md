@@ -3,31 +3,34 @@ title: python-day1-python基础1
 tags: 
 notebook: pyhton
 ---
+
 # Python基础1
+
+---
 
 <!-- TOC -->
 
-- [Python基础1](#python%e5%9f%ba%e7%a1%801)
-  - [1.Python介绍](#1python%e4%bb%8b%e7%bb%8d)
-    - [Python是一门什么样的语言?](#python%e6%98%af%e4%b8%80%e9%97%a8%e4%bb%80%e4%b9%88%e6%a0%b7%e7%9a%84%e8%af%ad%e8%a8%80)
-    - [Python的优缺点](#python%e7%9a%84%e4%bc%98%e7%bc%ba%e7%82%b9)
-    - [Python解释器](#python%e8%a7%a3%e9%87%8a%e5%99%a8)
-  - [2.Python的发展史](#2python%e7%9a%84%e5%8f%91%e5%b1%95%e5%8f%b2)
-  - [3.Python安装](#3python%e5%ae%89%e8%a3%85)
-  - [4.Hello World程序](#4hello-world%e7%a8%8b%e5%ba%8f)
-  - [5.变量](#5%e5%8f%98%e9%87%8f)
-  - [6.字符编码](#6%e5%ad%97%e7%ac%a6%e7%bc%96%e7%a0%81)
-    - [注释](#%e6%b3%a8%e9%87%8a)
-  - [7.用户输入](#7%e7%94%a8%e6%88%b7%e8%be%93%e5%85%a5)
-  - [8.格式化输出](#8%e6%a0%bc%e5%bc%8f%e5%8c%96%e8%be%93%e5%87%ba)
-  - [9.模块初识](#9%e6%a8%a1%e5%9d%97%e5%88%9d%e8%af%86)
-  - [10. `.pyc`是个什么鬼？](#10-pyc%e6%98%af%e4%b8%aa%e4%bb%80%e4%b9%88%e9%ac%bc)
-  - [11.数据类型初始](#11%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b%e5%88%9d%e5%a7%8b)
-  - [12.数据运算](#12%e6%95%b0%e6%8d%ae%e8%bf%90%e7%ae%97)
-  - [13.表达式`if ... else`](#13%e8%a1%a8%e8%be%be%e5%bc%8fif--else)
-  - [14.表达式for loop](#14%e8%a1%a8%e8%be%be%e5%bc%8ffor-loop)
-  - [15.while loop](#15while-loop)
-  - [16.练习](#16%e7%bb%83%e4%b9%a0)
+- [Python基础1](#python基础1)
+    - [1.Python介绍](#1python介绍)
+        - [Python是一门什么样的语言?](#python是一门什么样的语言)
+        - [Python的优缺点](#python的优缺点)
+        - [Python解释器](#python解释器)
+    - [2.Python的发展史](#2python的发展史)
+    - [3.Python安装](#3python安装)
+    - [4.Hello World程序](#4hello-world程序)
+    - [5.变量](#5变量)
+    - [6.字符编码](#6字符编码)
+        - [注释](#注释)
+    - [7.用户输入](#7用户输入)
+    - [8.格式化输出](#8格式化输出)
+    - [9.模块初识](#9模块初识)
+    - [10. `.pyc`是个什么鬼？](#10-pyc是个什么鬼)
+    - [11.数据类型初始](#11数据类型初始)
+    - [12.数据运算](#12数据运算)
+    - [13.表达式`if ... else`](#13表达式if--else)
+    - [14.表达式for loop](#14表达式for-loop)
+    - [15.while loop](#15while-loop)
+    - [16.练习](#16练习)
 
 <!-- /TOC -->
 
