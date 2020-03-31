@@ -1034,11 +1034,9 @@ notebook: pyhton
   ```
 
 * 基本操作
-  `f = open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None)`
-  file
 
   ```python
-    f = open('lyrics',r,encoding = "utf-8")    #打开文件
+    f = open('lyrics',encoding = "utf-8")    #打开文件 f为文件句柄
     data = f.read()   #读取剩下的所有内容，文件大时不要用
     print(data)   #打印文件
 
@@ -1048,23 +1046,93 @@ notebook: pyhton
 * 打开文件的模式有：
   * `r` ,只读模式（默认）
   * `w` ,只写模式。【不可读；不存在则创建；存在则删除内容；】
-  * `a` ,追加模式。【可读；不存在则创建；存在则只追加内容；】
+  * `a` ,追加模式。【不可读；不存在则创建；存在则只追加内容；】
 
-* `"+"`表示可以同时读写某个文件
-  * `r+` ,可读写文件。【可读；可写；可追加】
-  * `w+` ,写读
-  * `a+` ,同`a`
+    ```python
+      f = open('lyrics','r',encoding = "utf-8")
+      f = open('lyrics','w',encoding = "utf-8")
+      f = open('lyrics','a',encoding = "utf-8")
+    ```
 
-* `"U"`表示在读取时，可以将`\r` `\n` `\r\n`自动转换成`\n`(与`r`或`r+`模式同使用)
-  * `rU`
-  * `r+U`
+  * `"+"`表示可以同时读写某个文件
+    * `r+` ,可读写文件。【可读；可写；可追加】
+    * `w+` ,写读
+    * `a+` ,同`a`
 
-* `"b"`表示处理二进制文件（如：`FTP`发送上传`ISO`镜像文件，`linux`可忽略，`windows`处理二进制文件时需标注）
-  * `rb`
-  * `wb`
-  * `ab`
+  * `"U"`表示在读取时，可以将`\r` `\n` `\r\n`自动转换成`\n`(与`r`或`r+`模式同使用)
+    * `rU`
+    * `r+U`
 
+  * `"b"`表示处理二进制文件（如：`FTP`发送上传`ISO`镜像文件，`linux`可忽略，`windows`处理二进制文件时需标注）
+    * `rb`
+    * `wb`
+    * `ab`
 
+* 文件操作
+    ```python
+      f = open('lyrics','r',encoding = "utf-8")
+      
+      #读一行
+      first_line = f.readline()
+      print(first_line)
+      
+      #读多行(5行)
+      for i in range(5):
+        print(f.readline())
+
+      #读文件所有行到列表
+      lines = f.readlines()
+      print(lines)
+      ['As rain upon my tongue\n', '就如舌尖上的雨露\n', 'I teased at life as if it were a foolish game\n', ......]
+
+      #循环 方法low loop
+      for line in f.readlines():
+        print(line)
+
+      # strip 用于移除字符串头尾指定的字符（默认为空格或换行符）或字符序列。
+      for line in f.readlines():
+        print(line.strip())
+
+      #读多行 并打印index,line 方法三
+      for index,line in enumerate(f.readlines()):
+        print(line.strip())
+      #使用index操作（low loop）
+      for index,line in enumerate(f.readlines()):
+        if index == 9:
+            print("------------------------");
+            continue
+        print(line.strip())  
+      
+      #循环 方法high loop
+      for line in f:
+        print(line)
+
+      #索引 应用
+      count = 0
+      for line in f:
+        if count == 9:
+          print("--------------------------");
+          count += 1
+          continue
+        print(i.strip())
+        count += 1
+      
+      #tell 
+      print(f.tell())
+      print(f.read())
+      print(f.tell())
+      #输出
+      0
+      Someh
+      5
+
+      #seek
+      print(f.seek(0))
+      print(f.tell())
+      # 输出
+      0
+      0
+    ```
     
 ## 练习
 
