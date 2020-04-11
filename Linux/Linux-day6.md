@@ -117,11 +117,57 @@
 
   ![6-4](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/UTOOLS1586423620299.png)
 
-  ## 6.4挂载硬件设备
-  * 挂载
-    * 当用户需要使用硬盘设备或分区中的数据时，需要先将其与一个已存在的目录文件进行关联，而这个关联动作就是“挂载”
-  * `mount`命令：用与挂载文件系统
-    * 格式为
-        ```shell
-          
-        ```
+## 4.挂载硬件设备
+* 挂载
+  * 当用户需要使用硬盘设备或分区中的数据时，需要先将其与一个已存在的目录文件进行关联，而这个关联动作就是“挂载”
+* `mount`命令：用与挂载文件系统
+  * 格式为“mount 文件系统 挂载目录”
+  * 参数于作用：
+  
+    参数|作用
+    -|-
+    `-a`|挂载所有在`/etc/fstab`中定义的文件系统
+    `-t`|指定文件系统的类型
+
+  * 范例：
+    ```shell
+      mount /dev/sd2 /backup
+    ```
+* `/etc/fstab`文件：让硬件设备和目录永久地进行自动关联
+  * 填写格式：“设备文件  格式类型  权限选项  是否备份  是否自检”
+  
+    字段|意义
+    -|-
+    设备文件|一般为设备的路径+设备名称，也可以写唯一识别码（`UUID，Universally Unique Identifier`）
+    挂载目录|指定要挂载到的目录，需在挂载前创建好
+    格式类型|指定文件系统的格式，比如`Ext3、Ext4、XFS、SWAP、iso9660（此为光盘设备）`等
+    权限选项|若设置为`defaults`,则默认权限为：`rw、suid、dev、exec、auto、nouser、async`
+    是否备份|若为1则开机后使用`dump`进行磁盘备份，为0则不备份
+    是否自检|若为1则开机后自动进行磁盘自检，为0则不自检
+  * 范例：
+    ```shell
+      [root@centos ~]# cat /etc/fstab
+
+      #
+      # /etc/fstab
+      # Created by anaconda on Fri Mar  2 14:59:15 2018
+      #
+      # Accessible filesystems, by reference, are maintained under '/dev/disk'
+      # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+      #
+      UUID=74309cb6-4564-422f-bd07-a13e35acbb7a /                       xfs     defaults        0 0
+      /dev/sdb2  /backup     ext4     defaults        0 0
+      ```
+* `umont`命令：卸载，用于撤销已经挂载的设备文件
+  * 格式：“umount [挂载点/设备文件]”
+  * 范例：
+  ```shell
+    [root@centos ~]# umount /dev/sdb2
+  ```
+## 5.添加硬盘设备
+* `fdisk`命令：用于管理磁盘分区，它提供了集添加、删除、转换分区等功能与一身的“一站式分区服务”
+  * 格式：“fdisk [磁盘名称]”
+  * 参数：
+    参数|作用
+    -|-
+    m|查看全部可用的参数
