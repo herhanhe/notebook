@@ -233,8 +233,8 @@
     * 3.在确认创建一个主分区后，系统需要您先输入主分区的编号。接下来系统会提示定义起始的扇区位置，这不需要改动，我们敲击回车键保留默认设置即可，系统会自动计算出最靠前的空闲扇区的位置。最后，系统会要求定义分区的结束扇区位置，这其实就是要去定义整个分区的大小是多少。
 
       ```shell
-        Partition number (2-4, default 2): 
-        First sector (4196352-41943039, default 4196352): 
+        Partition number (2-4, default 2):
+        First sector (4196352-41943039, default 4196352):
         Using default value 4196352
         Last sector, +sectors or +size{K,M,G} (4196352-41943039, default 41943039): +3G
         Partition 2 of type Linux and of size 3 GiB is set
