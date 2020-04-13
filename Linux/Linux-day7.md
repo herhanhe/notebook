@@ -2,6 +2,18 @@
 
 ---
 
+- [Linux_day7 使用RAID与LVM磁盘阵列技术](#linuxday7-%e4%bd%bf%e7%94%a8raid%e4%b8%8elvm%e7%a3%81%e7%9b%98%e9%98%b5%e5%88%97%e6%8a%80%e6%9c%af)
+  - [1.RAID磁盘冗余阵列](#1raid%e7%a3%81%e7%9b%98%e5%86%97%e4%bd%99%e9%98%b5%e5%88%97)
+    - [1.1部署磁盘阵列](#11%e9%83%a8%e7%bd%b2%e7%a3%81%e7%9b%98%e9%98%b5%e5%88%97)
+    - [1.2 损坏磁盘阵列及修复](#12-%e6%8d%9f%e5%9d%8f%e7%a3%81%e7%9b%98%e9%98%b5%e5%88%97%e5%8f%8a%e4%bf%ae%e5%a4%8d)
+    - [1.3 磁盘阵列+备份盘](#13-%e7%a3%81%e7%9b%98%e9%98%b5%e5%88%97%e5%a4%87%e4%bb%bd%e7%9b%98)
+  - [2.LVM逻辑卷管理器](#2lvm%e9%80%bb%e8%be%91%e5%8d%b7%e7%ae%a1%e7%90%86%e5%99%a8)
+    - [2.1 部署逻辑卷](#21-%e9%83%a8%e7%bd%b2%e9%80%bb%e8%be%91%e5%8d%b7)
+    - [2.2 扩容逻辑卷](#22-%e6%89%a9%e5%ae%b9%e9%80%bb%e8%be%91%e5%8d%b7)
+    - [2.3 缩小逻辑卷](#23-%e7%bc%a9%e5%b0%8f%e9%80%bb%e8%be%91%e5%8d%b7)
+    - [2.4 逻辑卷快照](#24-%e9%80%bb%e8%be%91%e5%8d%b7%e5%bf%ab%e7%85%a7)
+    - [2.5 删除逻辑卷](#25-%e5%88%a0%e9%99%a4%e9%80%bb%e8%be%91%e5%8d%b7)
+
 ## 1.RAID磁盘冗余阵列
 
 * `RAID 0`
@@ -356,4 +368,388 @@
            1       8       48        -      faulty   /dev/sdd
     ```
 
-## LVM逻辑卷管理器
+## 2.LVM逻辑卷管理器
+
+* 逻辑卷管理器是Linux系统用于对硬盘分区进行管理的一种机制，理论性较强，其创建初衷是为了解决硬盘设备在创建分区后不易修改分区大小的缺陷。
+* LVM技术是在硬盘分区和文件系统之间添加了一个逻辑层，它提供了一个抽象的卷组，可以把多块硬盘进行卷组合并。这样一来，用户不必关心物理硬盘设备的底层架构和布局，就可以实现对硬盘分区的动态调整。
+
+    ![7-5](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/UTOOLS1586782216647.png)
+
+* LVM的核心理念：卷组建立在物理卷之上，一个卷组可以包含多个物理卷，而且在卷组创建之后也可以继续向其中添加新的物理卷。逻辑卷是用卷组中空闲的资源建立的，并且逻辑卷在建立后可以动态地扩展或缩小空间。
+
+### 2.1 部署逻辑卷
+
+* 部署LVM时，需要逐个配置物理卷、卷组、和逻辑卷。
+* 常用的LVM部署命令
+
+    功能/命令|物理卷管理|卷组管理|逻辑卷管理
+    -|-|-|-
+    扫描|`pvscan`|`vgscan`|`lvscan`
+    建立|`pvcreate`|`vgcreate`|`lvcreate`
+    显示|`pvdisplay`|`vgdisplay`|`lvdisplay`
+    删除|`pvremove`|`vgremove`|`lvremove`
+    扩展||`vgextend`|`lvextend`
+    缩小||`vgreduce`|`lvreduce`
+
+* 范例：部署逻辑卷步奏：
+  * 1.让新添加的两块硬盘设备支持LVN技术。
+
+    ```shell
+      [root@localhost Desktop]# pvcreate /dev/sdc /dev/sdd /dev/sde /dev/sdf
+      Physical volume "/dev/sdc" successfully created  
+      Physical volume "/dev/sdd" successfully created  
+      Physical volume "/dev/sde" successfully created
+      Physical volume "/dev/sdf" successfully created
+    ```
+
+  * 2.把四块硬盘设备加入到`herhan`卷组，然后查看卷组的状态
+
+    ```shell
+      [root@localhost Desktop]# vgcreate herhan /dev/sdc /dev/sdd /dev/sde /dev/sdf
+       Volume group "herhan" successfully created
+      [root@localhost Desktop]# vgdisplay
+      --- Volume group ---
+       VG Name               herhan
+       System ID
+       Format                lvm2
+       Metadata Areas        4
+       Metadata Sequence No  1
+       VG Access             read/write
+       VG Status             resizable
+       MAX LV                0
+       Cur LV                0
+       Open LV               0
+       Max PV                0
+       Cur PV                4
+       Act PV                4
+       VG Size               19.98 GiB
+       PE Size               4.00 MiB
+       Total PE              5116
+       Alloc PE / Size       0 / 0
+       Free  PE / Size       5116 / 19.98 GiB
+       VG UUID               ul133W-VC5d-hpmT-oJp2-a2Ki-1cYo-trZ6kD
+    ```
+
+  * 3.切割出一个约为200MB的逻辑卷设备
+    * 方法1是以容器为单位，所使用的参数为`-L`。例如，使用`-L 150M`生成一个大小为150MB的逻辑卷
+    * 方法2是以基础单元的个数为单元，所使用的参数为`-l`。每个基本单元的大小默认为`4MB`。例如，使用`-l 37`可以生成一个大小为`37x4M=148M`的逻辑卷。
+
+    ```shell
+      [root@localhost Desktop]# lvcreate -n vo -l 50 herhan
+       Logical volume "vo" created
+      [root@localhost Desktop]# lvdisplay
+      --- Logical volume ---
+       LV Path                /dev/herhan/vo
+       LV Name                vo
+       VG Name                herhan
+       LV UUID                32I0Vu-43lL-rFWh-8Hip-1q7W-S4DF-s8uqUI
+       LV Write Access        read/write
+       LV Creation host, time localhost.localdomain, 2020-04-13 21:35:19 +0800
+       LV Status              available
+       # open                 0
+       LV Size                200.00 MiB
+       Current LE             50
+       Segments               1
+       Allocation             inherit
+       Read ahead sectors     auto
+       - currently set to     8192
+       Block device           253:2
+    ```
+
+  * 4.把生成好的逻辑卷进行格式化，然后挂载使用。
+
+    ```shell
+      [root@localhost Desktop]# mkfs.ext4 /dev/herhan/vo
+      mke2fs 1.42.9 (28-Dec-2013)
+      Filesystem label=
+      OS type: Linux
+      Block size=1024 (log=0)
+      Fragment size=1024 (log=0)
+      Stride=0 blocks, Stripe width=0 blocks
+      51200 inodes, 204800 blocks
+      10240 blocks (5.00%) reserved for the super user
+      First data block=1
+      Maximum filesystem blocks=33816576
+      25 block groups
+      8192 blocks per group, 8192 fragments per group
+      2048 inodes per group
+      Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729
+
+      Allocating group tables: done
+      Writing inode tables: done
+      Creating journal (4096 blocks): done
+      Writing superblocks and filesystem accounting information: done
+
+      [root@localhost Desktop]# mkdir /herhan
+      [root@localhost Desktop]# mount /dev/herhan/vo /herhan/
+    ```
+
+  * 5.查看挂载状态，并写入到配置文件，使其永久生效。
+
+    ```shell
+      [root@localhost Desktop]# df -h
+      Filesystem             Size  Used Avail Use% Mounted on
+      /dev/mapper/rhel-root   18G  2.9G   15G  17% /
+      devtmpfs               985M     0  985M   0% /dev
+      tmpfs                  994M  140K  994M   1% /dev/shm
+      tmpfs                  994M  8.9M  986M   1% /run
+      tmpfs                  994M     0  994M   0% /sys/fs/cgroup
+      /dev/sdb2              3.0G   33M  3.0G   2% /newFS2
+      /dev/sdb1              2.0G   66M  2.0G   4% /newFS
+      /dev/sda1              497M  127M  371M  26% /boot
+      /dev/sr0               3.5G  3.5G     0 100% /run/media/root/RHEL-7.0 Server.x86_64
+      /dev/mapper/herhan-vo  190M  1.6M  175M   1% /herhan
+      [root@localhost Desktop]# echo "/dev/herhan/vo /herhan ext4 defaults 0 0" >> /etc/fstab
+    ```
+
+### 2.2 扩容逻辑卷
+
+* 用户在使用存储设备时感知不到设备底层的架构和布局，更不用关心底层是由多少块硬盘组成的，只要卷组中有足够的资源，就可以一直为逻辑卷扩容。扩展前请一定要记得卸载设备和挂载点的关联。
+
+    ```shell
+      [root@localhost Desktop]# umount /herhan
+    ```
+
+* 1.把上一个实验中的逻辑卷vo扩展至300MB
+
+    ```shell
+      [root@localhost Desktop]# lvextend -L 300M /dev/herhan/vo
+      Extending logical volume vo to 300.00 MiB
+      Logical volume vo successfully resized
+    ```
+
+* 2.检查硬盘完整性，重新挂载硬盘设备，并重置硬盘容量。
+
+    ```shell
+      [root@localhost Desktop]# e2fsck -f /dev/herhan/vo
+      e2fsck 1.42.9 (28-Dec-2013)
+      Pass 1: Checking inodes, blocks, and sizes
+      Pass 2: Checking directory structure
+      Pass 3: Checking directory connectivity
+      Pass 4: Checking reference counts
+      Pass 5: Checking group summary information
+      /dev/herhan/vo: 11/51200 files (0.0% non-contiguous), 12115/204800 blocks
+      [root@localhost Desktop]# mount -a
+      [root@localhost Desktop]# df -h
+      Filesystem             Size  Used Avail Use% Mounted on
+      /dev/mapper/rhel-root   18G  2.9G   15G  17% /
+      devtmpfs               985M     0  985M   0% /dev
+      tmpfs                  994M  140K  994M   1% /dev/shm
+      tmpfs                  994M  8.8M  986M   1% /run
+      tmpfs                  994M     0  994M   0% /sys/fs/cgroup
+      /dev/sdb2              3.0G   33M  3.0G   2% /newFS2
+      /dev/sdb1              2.0G   66M  2.0G   4% /newFS
+      /dev/sda1              497M  127M  371M  26% /boot
+      /dev/sr0               3.5G  3.5G     0 100% /run/media/root/RHEL-7.0 Server.x86_64
+      /dev/mapper/herhan-vo  190M  1.6M  175M   1% /herhan
+      [root@localhost Desktop]# resize2fs /dev/herhan/vo
+      resize2fs 1.42.9 (28-Dec-2013)
+      Filesystem at /dev/herhan/vo is mounted on /herhan; on-line resizing required
+      old_desc_blocks = 2, new_desc_blocks = 3
+      The filesystem on /dev/herhan/vo is now 307200 blocks long.
+    ```
+
+* 3.查看挂载状态。
+
+    ```shell
+      [root@localhost Desktop]# df -h
+      Filesystem             Size  Used Avail Use% Mounted on
+      /dev/mapper/rhel-root   18G  2.9G   15G  17% /
+      devtmpfs               985M     0  985M   0% /dev
+      tmpfs                  994M  140K  994M   1% /dev/shm
+      tmpfs                  994M  8.8M  986M   1% /run
+      tmpfs                  994M     0  994M   0% /sys/fs/cgroup
+      /dev/sdb2              3.0G   33M  3.0G   2% /newFS2
+      /dev/sdb1              2.0G   66M  2.0G   4% /newFS
+      /dev/sda1              497M  127M  371M  26% /boot
+      /dev/sr0               3.5G  3.5G     0 100% /run/media/root/RHEL-7.0 Server.x86_64
+      /dev/mapper/herhan-vo  287M  2.1M  267M   1% /herhan
+    ```
+
+### 2.3 缩小逻辑卷
+
+* 在对LVM逻辑卷进行缩容操作之前，要先检查文件系统的完整性（当然这也是为了保证我们的数据安全）。在执行缩容操作前记得先把文件系统卸载掉。
+
+    ```shell
+      [root@localhost Desktop]# umount /herhan
+    ```
+
+* 1.检查文件系统的完整性。
+
+    ```shell
+      [root@localhost Desktop]# e2fsck -f /dev/herhan/vo
+      e2fsck 1.42.9 (28-Dec-2013)
+      Pass 1: Checking inodes, blocks, and sizes
+      Pass 2: Checking directory structure
+      Pass 3: Checking directory connectivity
+      Pass 4: Checking reference counts
+      Pass 5: Checking group summary information
+      /dev/herhan/vo: 11/77824 files (0.0% non-contiguous), 15987/307200 blocks
+    ```
+
+* 2.把逻辑卷vo的容量减少到100M
+
+    ```shell  
+      [root@localhost Desktop]# resize2fs /dev/herhan/vo 100M
+      resize2fs 1.42.9 (28-Dec-2013)
+      Resizing the filesystem on /dev/herhan/vo to 102400 (1k) blocks.
+      The filesystem on /dev/herhan/vo is now 102400 blocks long.
+
+      [root@localhost Desktop]# lvreduce -L 100M /dev/herhan/vo
+      WARNING: Reducing active logical volume to 100.00 MiB
+      THIS MAY DESTROY YOUR DATA (filesystem etc.)
+      Do you really want to reduce vo? [y/n]: y
+      Reducing logical volume vo to 100.00 MiB
+      Logical volume vo successfully resized
+    ```
+
+* 3.重新挂载文件系统并查看系统状态。
+
+    ```shell
+      [root@localhost Desktop]# mount -a
+      [root@localhost Desktop]# df -h
+      Filesystem             Size  Used Avail Use% Mounted on
+      /dev/mapper/rhel-root   18G  2.9G   15G  17% /
+      devtmpfs               985M     0  985M   0% /dev
+      tmpfs                  994M  140K  994M   1% /dev/shm
+      tmpfs                  994M  8.8M  986M   1% /run
+      tmpfs                  994M     0  994M   0% /sys/fs/cgroup
+      /dev/sdb2              3.0G   33M  3.0G   2% /newFS2
+      /dev/sdb1              2.0G   66M  2.0G   4% /newFS
+      /dev/sda1              497M  127M  371M  26% /boot
+      /dev/sr0               3.5G  3.5G     0 100% /run/media/root/RHEL-7.0 Server.x86_64
+      /dev/mapper/herhan-vo   93M  1.6M   85M   2% /herhan
+    ```
+
+### 2.4 逻辑卷快照
+
+* `LVM`还具备有“快照卷”功能，该功能类似于虚拟机软件的还原时间点功能。
+* `LVM`的快照卷功能有两个特点：
+  * 快照卷的容量必须等同于逻辑卷的容量；
+  * 快照卷仅一次有效，一旦执行还原操作后则会被立即自动删除。
+
+* 范例：
+  * 查看卷组的信息
+  * 接下来用重定向往逻辑卷设备所挂载的目录中写入一个文件。
+
+    ```shell
+      [root@localhost Desktop]# echo "Welcome to herhan.com" > /herhan/readme.txt
+      [root@localhost Desktop]# ls -l /herhan
+      total 14
+      drwx------. 2 root root 12288 Apr 13 21:44 lost+found
+      -rw-r--r--. 1 root root    22 Apr 13 23:16 readme.txt
+    ```
+  
+  * 1.使用`-s`参数生成一个快照卷，使用`-L`参数指定切割的大小。另外，还需要在命令后面写上是针对哪个逻辑卷执行的快照操作。
+
+    ```shell
+      [root@localhost Desktop]# lvcreate -L 100M -s -n SNAP /dev/herhan/vo
+      Logical volume "SNAP" created
+      [root@localhost Desktop]# lvdisplay
+       --- Logical volume ---
+       LV Path                /dev/herhan/SNAP
+       LV Name                SNAP
+       VG Name                herhan
+       LV UUID                JEVqxT-bc0P-U8of-so2d-dnpv-wxSf-ls8Jvn
+       LV Write Access        read/write
+       LV Creation host, time localhost.localdomain, 2020-04-13 23:21:13 +0800
+       LV snapshot status     active destination for vo
+       LV Status              available
+       # open                 0
+       LV Size                100.00 MiB
+       Current LE             25
+       COW-table size         100.00 MiB
+       COW-table LE           25
+       Allocated to snapshot  0.01%
+       Snapshot chunk size    4.00 KiB
+       Segments               1
+       Allocation             inherit
+       Read ahead sectors     auto
+       - currently set to     8192
+       Block device           253:3
+    ```
+
+  * 2.在逻辑卷所挂载的目录中创建一个100MB的垃圾文件，然后再查看快照卷的状态。可以发现存储空间占的用量上升了。
+
+    ```shell
+      [root@localhost Desktop]# dd if=/dev/zero of=/herhan/files count=1 bs=100M
+      dd: error writing ‘/herhan/files’: No space left on device
+      1+0 records in
+      0+0 records out
+      93528064 bytes (94 MB) copied, 0.932516 s, 100 MB/s
+    ```
+
+  * 3.为了校验SNAP快照卷的效果，需要对逻辑卷进行快照还原操作。在此之前记得先卸载掉逻辑卷设备与目录的挂载。
+
+    ```shell
+      [root@localhost Desktop]# lvconvert --merge /dev/herhan/SNAP 
+      Merging of volume SNAP started.
+      vo: Merged: 24.8%
+      vo: Merged: 100.0%
+      Merge of snapshot into logical volume vo has finished.
+      Logical volume "SNAP" successfully removed
+    ```
+
+  * 4.快照卷会被自动删除掉，并且刚刚在逻辑卷设备被执行快照操作后再创建出来的100MB的垃圾文件也被清除了。
+
+    ```shell
+      [root@localhost Desktop]# mount -a
+      [root@localhost Desktop]# ls -l /herhan
+      total 14
+      drwx------. 2 root root 12288 Apr 13 21:44 lost+found
+      -rw-r--r--. 1 root root    22 Apr 13 23:16 readme.txt
+    ```
+
+### 2.5 删除逻辑卷
+
+* 需要提前备份好重要的数据信息，然后依次删除逻辑卷、卷组、物理卷设备，这个顺序不可颠倒。
+
+* 1.取消逻辑卷与目录的挂载关联，删除配置文件中永久生效的设备参数。
+
+    ```shell
+      [root@localhost Desktop]# umount /herhan
+      [root@localhost Desktop]# vim /etc/fstab
+      #
+      # /etc/fstab
+      # Created by anaconda on Mon Mar 30 10:57:59 2020
+      #
+      # Accessible filesystems, by reference, are maintained under '/dev/disk'
+      # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+      #
+      /dev/mapper/rhel-root   /                       xfs     defaults        1 1
+      UUID=6e4ae779-2177-4917-b994-1aa87e9c8180 /boot                   xfs     defaults,uquota        1 2
+      /dev/mapper/rhel-swap   swap                    swap    defaults        0 0
+      /dev/sdb1               /newFS                  xfs     defaults        0 0
+      /dev/sdb2               /newFS2                 xfs     defaults        0 0
+      /dev/sdb3               swap                    swap    defaults        0 0
+      #del
+      /dev/herhan/vo /herhan ext4 defaults 0 0
+    ```
+
+  * 2.删除逻辑卷设备，需要输入y来确认操作。
+
+    ```shell
+      [root@localhost Desktop]# lvremove /dev/herhan/vo
+      Do you really want to remove active logical volume vo? [y/n]: y
+      Logical volume "vo" successfully removed
+    ```
+
+  * 3.删除卷组，此处只写卷组名称即可，不需要设备的绝对路径。
+
+    ```shell
+      [root@localhost Desktop]# vgremove herhan
+      Volume group "herhan" successfully removed
+    ```
+
+  * 4.删除物理卷设备。
+
+    ```shell
+      [root@localhost Desktop]# pvremove /dev/sdc /dev/sdd /dev/sde /dev/sdf
+      Labels on physical volume "/dev/sdc" successfully wiped
+      Labels on physical volume "/dev/sdd" successfully wiped
+      Labels on physical volume "/dev/sde" successfully wiped
+      Labels on physical volume "/dev/sdf" successfully wiped
+    ```
+
+  * 5.在上述操作执行完毕之后，再执行lvdisplay、vgdisplay、pvdisplay命令来查看LVM的信息时就不会再看到信息了（前提是上述步骤的操作是正确的）。
