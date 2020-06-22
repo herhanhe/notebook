@@ -321,3 +321,196 @@
   `userlist_deny`=`YES`|启用“禁止用户名单”，名单文件为`ftpusers`和`user_list`
   `userlist_enable`=`YES`|开启用户作用名单文件功能
   
+* 试验`vsftpd`本地用户模式配置
+
+  * 1.`vsftpd`配置文件，参数配置
+  
+    ```shell
+      [root@localhost Desktop]# vim /etc/vsftpd/vsftpd.conf
+      anonymous_enable=NO
+      local_enable=YES
+      write_enable=YES
+      local_umask=022
+      dirmessage_enable=YES
+      xferlog_enable=YES
+      connect_from_port_20=YES
+      xferlog_std_format=YES
+      listen=NO
+      listen_ipv6=YES
+      pam_service_name=vsftpd
+      userlist_enable=YES
+      tcp_wrappers=YES
+    ```
+  
+  * 2.在`vsftpd`服务程序的主配置文件中正确填写参数，然后保存并退出。还需要重启`vsftpd`服务程序，让新的配置参数生效
+
+    ```shell
+      [root@localhost Desktop]# systemctl restart vsftpd
+      [root@localhost Desktop]# systemctl enable vsftpd
+      ln -s '/usr/lib/systemd/system/vsftpd.service' '/etc/systemd/system/multi-user.target.wants/vsftpd.service
+    ```
+  
+  * 3.按理来讲，现在已经完全可以本地用户的身份登录`FTP`服务器了。但是在使用`root`管理员登录后，系统提示如下的错误信息：
+
+    ```shell
+      [root@localhost Desktop]# ftp 192.168.10.10
+      Connected to 192.168.10.10 (192.168.10.10).
+      220 (vsFTPd 3.0.2)
+      Name (192.168.10.10:root): root
+      530 Permission denied.
+      Login failed.
+      ftp>
+    ```
+
+  * 4.可见，在我们输入`root`管理员的密码之前，就已经被系统拒绝访问了。这是因为`vsftpd`服务程序所在的目录中默认存放着两个名为“用户名单”的文件（`ftpusers`和`user_list`）。不知道大家是否已看过一部日本电影“死亡笔记”（刘遄老师在上学期间的最爱），里面就提到有一个黑色封皮的小本子，只要将别人的名字写进去，这人就会挂掉。
+
+    ```shell
+      [root@localhost Desktop]# cat /etc/vsftpd/user_list 
+      # vsftpd userlist
+      # If userlist_deny=NO, only allow users in this file
+      # If userlist_deny=YES (default), never allow users in this file, and
+      # do not even prompt for a password.
+      # Note that the default vsftpd pam config also checks /etc/vsftpd/ftpusers
+      # for users that are denied.
+      root 删除
+      bin
+      daemon
+      adm
+      lp
+      sync
+      shutdown
+      halt
+      mail
+      news
+      uucp
+      operator
+      games
+      nobody
+      [root@localhost Desktop]# cat /etc/vsftpd/ftpusers
+      # Users that are not allowed to login via ftp
+      root 删除
+      bin
+      daemon
+      adm
+      lp
+      sync
+      shutdown
+      halt
+      mail
+      news
+      uucp
+      operator
+      games
+      nobody
+    ```
+
+  * 5.`vsftpd`服务程序为了保证服务器的安全性而默认禁止了`root`管理员和大多数系统用户的登录行为，这样可以有效地避免黑客通过`FTP`服务对`root`管理员密码进行暴力破解。如果您确认在生产环境中使用`root`管理员不会对系统安全产生影响，只需按照上面的提示删除掉`root`用户名即可。我们也可以选择`ftpusers`和`user_list`文件中没有的一个普通用户尝试登录`FTP`服务器：
+
+    ```shell
+      [root@localhost Desktop]# ftp 192.168.10.10
+      Connected to 192.168.10.10 (192.168.10.10).
+      220 (vsFTPd 3.0.2)
+      Name (192.168.10.10:root): herhan
+      331 Please specify the password.
+      Password:
+      230 Login successful.
+      Remote system type is UNIX.
+      Using binary mode to transfer files.
+      ftp> mkdir files
+      550 Create directory operation failed.
+    ```
+
+  * 6.在采用本地用户模式登录`FTP`服务器后，默认访问的是该用户的家目录，也就是说，访问的是`/home/linuxprobe`目录。而且该目录的默认所有者、所属组都是该用户自己，因此不存在写入权限不足的情况。但是当前的操作仍然被拒绝，是因为我们刚才将虚拟机系统还原到最初的状态了。为此，需要再次开启`SELinux`域中对`FTP`服务的允许策略：
+
+    ```shell
+      [root@localhost Desktop]# getsebool -a | grep ftp
+      ftp_home_dir --> off
+      ftpd_anon_write --> off
+      ftpd_connect_all_unreserved --> off
+      ftpd_connect_db --> off
+      ftpd_full_access --> off
+      ftpd_use_cifs --> off
+      ftpd_use_fusefs --> off
+      ftpd_use_nfs --> off
+      ftpd_use_passive_mode --> off
+      httpd_can_connect_ftp --> off
+      httpd_enable_ftp_server --> off
+      sftpd_anon_write --> off
+      sftpd_enable_homedirs --> off
+      sftpd_full_access --> off
+      sftpd_write_ssh_home --> off
+      tftp_anon_write --> off
+      tftp_home_dir --> off
+      [root@localhost Desktop]# setsebool -P ftpd_full_access=on
+    ```
+
+  * 在实验课程和生产环境中设置`SELinux`域策略时，一定记得添加`-P`参数，否则服务器在重启后就会按照原有的策略进行控制，从而导致配置过的服务无法使用。  
+
+  * 7.在配置妥当后再使用本地用户尝试登录下`FTP`服务器，分别执行文件的创建、重命名及删除等命令。操作均成功
+
+    ```shell
+      [root@localhost Desktop]# ftp 192.168.10.10
+      Connected to 192.168.10.10 (192.168.10.10).
+      220 (vsFTPd 3.0.2)
+      Name (192.168.10.10:root): herhan
+      331 Please specify the password.
+      Password:
+      230 Login successful.
+      Remote system type is UNIX.
+      Using binary mode to transfer files.
+      ftp> mkdir files
+      257 "/home/linuxprobe/files" created
+      ftp> rename files database
+      350 Ready for RNTO.
+      250 Rename successful.
+      ftp> rmdir database
+      250 Remove directory operation successful.
+      ftp> exit
+      221 Goodbye.
+    ```
+
+### 11.2.3 虚拟用户模式
+
+* 虚拟用户模式是这三种模式中最安全的一种认证模式，当然，因为安全性较之于前面两种模式有了提升，所以配置流程也会稍微复杂一些。
+
+* 1.创建用于进行`FTP`认证的用户数据库文件，其中奇数行为账户名，偶数行为密码
+
+  ```shell
+    [root@localhost Desktop]# cd /etc/vsftpd/
+    [root@localhost vsftpd]# vim vuser.list
+    lilie
+    123
+    hanmeimei
+    123
+  ```
+
+* 但是，明文信息既不安全，也不符合让`vsftpd`服务程序直接加载的格式，因此需要使用`db_load`命令用哈希（`hash`）算法将原始的明文信息文件转换成数据库文件，并且降低数据库文件的权限（避免其他人看到数据库文件的内容），然后再把原始的明文信息文件删除。
+
+  ```shell
+    [root@localhost vsftpd]# db_load -T -t hash -f vuser.list vuser.db
+    [root@localhost vsftpd]# file vuser.db
+    vuser.db: Berkeley DB (Hash, version 9, native byte-order)
+    [root@localhost vsftpd]# chmod 600 vuser.db
+    [root@localhost vsftpd]# rm -rf vuser.list
+  ```
+
+* 2.创建`vsftpd`服务程序用于存储文件的根目录以及虚拟用户映射的系统本地用户。`FTP`服务用于存储文件的根目录指的是，当虚拟用户登录后所访问的默认位置。
+
+* 由于`Linux`系统中的每一个文件都有所有者、所属组属性，例如使用虚拟账户新建了一个文件，但是系统中找不到账户，就会导致这个文件的权限出现错误。为此，需要再创建一个可以映射到虚拟用户的系统本地用户。简单来说，就是让虚拟用户默认登录到与之有映射关系的这个系统本地用户的家目录中，虚拟用户创建的文件的属性也都归属于这个系统本地用户，从而避免Linux系统无法处理虚拟用户所创建文件的属性权限
+* 为了方便管理`FTP`服务器上的数据，可以把这个系统本地用户的家目录设置为`/var`目录（该目录用来存放经常发生改变的数据）。并且为了安全起见，我们将这个系统本地用户设置为不允许登录`FTP`服务器，这不会影响虚拟用户登录，而且还可以避免黑客通过这个系统本地用户进行登录。
+
+  ```shell
+    [root@localhost ~]# useradd -d /var/ftproot -s /sbin/nologin virtual
+    [root@localhost ~]# ls -ld /var/ftproot
+    drwx------. 3 virtual virtual 74 Jun 22 23:52 /var/ftproot
+    [root@localhost ~]# chmod -Rf 755 /var/ftproot
+  ```
+
+* 3.建立用于支持虚拟用户的`PAM`文件
+
+* `PAM`（可插拔认证模块）是一种认证机制，通过一些动态链接库和统一的`API`把系统提供的服务与认证方式分开，使得系统管理员可以根据需求灵活调整服务程序的不同认证方式。
+* `PAM`是一组安全机制的模块，系统管理员可以用来轻易地调整服务程序的认证方式，而不必对应用程序进行任何修改。`PAM`采取了分层设计（应用程序层、应用接口层、鉴别模块层）的思想，其结构如图11-2所示。
+
+![11-2](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/assets/Linux/11-2.png)
+
+
