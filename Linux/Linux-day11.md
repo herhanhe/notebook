@@ -513,4 +513,261 @@
 
 ![11-2](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/assets/Linux/11-2.png)
 
+* 新建一个用于虚拟用户认证的`PAM`文件`vsftpd.vu`,其中`PAM`文件内的`db=`参数为使用`db_load`命令生成的账户密码数据库文件的路径，但不用写数据库文件的后缀：
 
+  ```shell
+    [root@localhost ~]# vim /etc/pam.d/vsftpd.vu
+    auth    required        pam_userdb.so db=/etc/vsftpd/vuser
+    account required        pam_userdb.so db=/etc/vsftpd/vuser
+  ```
+
+* 4.在`vsftpd`服务程序的主配置文件中通过`pam_service_name`参数将`PAM`认证文件的名称修改为`vsftpd.vu`，`PAM`作为应用程序层与鉴别模块层的连接纽带，可以让应用程序根据需求灵活地在自身插入所需的鉴别功能模块。当应用程序需要`PAM`认证时，则需要在应用程序中定义负责认证的`PAM`配置文件，实现所需的认证功能。
+
+* 利用`PAM`文件进行认证时使用的参数以及作用
+
+  参数|作用
+  -|-
+  `anonymous_enable`=`NO`|禁止匿名开放模式
+  `local_enable`=`YES`|允许本地用户模式
+  `guest_enable`=`YES`|开启虚拟用户模式
+  `guest_username`=`virtual`|指定虚拟用户账户
+  `pam_service_name`=`vsftpd.vu`|指定`PAM`文件
+  `allow_writeable_chroot`=`YES`|允许对禁锢的`FTP`根目录执行写入操作，而且不拒绝用户的登录请求
+
+  ```shell
+    [root@localhost ~]# vim /etc/vsftpd/vsftpd.conf
+    anonymous_enable=NO
+    local_enable=YES
+    guset_enable=YES
+    guest_username=virual
+    allow_writeable_chroot=YES
+    write_enable=YES
+    local_umask=022
+    dirmessage_enable=YES
+    xferlog_enable=YES
+    connect_from_port_20=YES
+    xferlog_std_format=YES
+    listen=NO
+    listen_ipv6=YES
+    pam_service_name=vsftpd.vu
+    userlist_enable=YES
+    tcp_wrappers=YES
+  ```
+
+* 5.为虚拟用户设置不同的权限。
+* 虽然账户`lilie`和`hanmeimei`都是用于`vsftpd`服务程序认证的虚拟账户，但是我们依然想对这两人进行区别对待。比如，允许李磊上传、创建、修改、查看、删除文件，只允许韩梅梅查看文件。这可以通过`vsftpd`服务程序来实现。只需新建一个目录，在里面分别创建两个以`lilie`和`hanmeimei`命名的文件，其中在名为`lilie`的文件中写入允许的相关权限（使用匿名用户的参数）：
+
+  ```shell
+    [root@localhost ~]# mkdir /etc/vsftpd/vusers_dir
+    [root@localhost ~]# cd /etc/vsftpd/vusers_dir/
+    [root@localhost vusers_dir]# touch hanmeimei
+    [root@localhost vusers_dir]# vim lilie
+    anon_upload_enable=YES
+    anon_mkdir_write_enable=YES
+    anon_other_write_enable=YES
+  ```
+
+* 然后再次修改`vsftpd`主配置文件，通过添加`user_config_dir`参数来定义这两个虚拟用户不同权限的配置文件所存放的路径。为了让修改后的参数立即生效，需要重启`vsftpd`服务程序并将该服务添加到开机启动项中：
+
+  ```shell
+    [root@localhost vusers_dir]# vim /etc/vsftpd/vsftpd.conf
+    anonymous_enable=NO
+    local_enable=YES
+    guest_enable=YES
+    guest_username=virtual
+    allow_writeable_chroot=YES
+    write_enable=YES
+    local_umask=022
+    dirmessage_enable=YES
+    xferlog_enable=YES
+    connect_from_port_20=YES
+    xferlog_std_format=YES
+    listen=NO
+    listen_ipv6=YES
+    pam_service_name=vsftpd.vu
+    userlist_enable=YES
+    tcp_wrappers=YES
+    user_config_dir=/etc/vsftpd/vusers_dir
+    [root@localhost vusers_dir]# systemctl restart vsftpd
+  ```
+
+* 6.设置`SELinux`域允许策略，然后使用虚拟用户模式登录FTP服务器。相信大家可以猜到，`SELinux`会继续来捣乱。所以，先按照前面实验中的步骤开启`SELinux`域的允许策略，以免再次出现操作失败的情况：
+
+  ```shell
+    [root@localhost Desktop]# getsebool -a | grep ftp
+    ftp_home_dir --> off
+    ftpd_anon_write --> off
+    ftpd_connect_all_unreserved --> off
+    ftpd_connect_db --> off
+    ftpd_full_access --> off
+    ftpd_use_cifs --> off
+    ftpd_use_fusefs --> off
+    ftpd_use_nfs --> off
+    ftpd_use_passive_mode --> off
+    httpd_can_connect_ftp --> off
+    httpd_enable_ftp_server --> off
+    sftpd_anon_write --> off
+    sftpd_enable_homedirs --> off
+    sftpd_full_access --> off
+    sftpd_write_ssh_home --> off
+    tftp_anon_write --> off
+    tftp_home_dir --> off
+    [root@localhost Desktop]# setsebool -P ftpd_full_access=on
+  ```
+  
+  ```shell
+    [root@localhost Desktop]# ftp 192.168.10.10
+    Connected to 192.168.10.10 (192.168.10.10).
+    220 (vsFTPd 3.0.2)
+    Name (192.168.10.10:root): hanmeimei
+    331 Please specify the password.
+    Password:
+    230 Login successful.
+    Remote system type is UNIX.
+    Using binary mode to transfer files.
+    ftp> mkdir files
+    550 Permission denied.
+    ftp> exit
+    221 Goodbye.
+    [root@localhost Desktop]# ftp 192.168.10.10
+    Connected to 192.168.10.10 (192.168.10.10).
+    220 (vsFTPd 3.0.2)
+    Name (192.168.10.10:root): lilie
+    331 Please specify the password.
+    Password:
+    230 Login successful.
+    Remote system type is UNIX.
+    Using binary mode to transfer files.
+    ftp> mkdir files
+    257 "/files" created
+    ftp> rename files database
+    350 Ready for RNTO.
+    250 Rename successful.
+    ftp> rmdir database
+    250 Remove directory operation successful.
+    ftp> exit
+    221 Goodbye.
+  ```
+
+## 11.3 `TFTP`简单文件传输协议
+
+* 简单文件传输协议（`Trivial File Transfer Protocol，TFTP`）是一种基于`UDP`协议在客户端和服务器之间进行简单文件传输的协议。顾名思义，它提供不复杂、开销不大的文件传输服务（可将其当作`FTP`协议的简化版本）。
+
+* `TFTP`的命令功能不如`FTP`服务强大，甚至不能遍历目录，在安全性方面也弱于`FTP`服务。而且，由于`TFTP`在传输文件时采用的是`UDP`协议，占用的端口号为`69`，因此文件的传输过程也不像`FTP`协议那样可靠。但是，因为`TFTP`不需要客户端的权限认证，也就减少了无谓的系统和网络带宽消耗，因此在传输琐碎（`trivial`）不大的文件时，效率更高。
+
+  ```shell
+    [root@localhost ~]# yum install tftp-server tftp
+    Loaded plugins: langpacks, product-id, subscription-manager
+    This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+    rhel7                                                                                                                                                               | 4.1 kB  00:00:00     
+    Resolving Dependencies
+    --> Running transaction check
+    ---> Package tftp.x86_64 0:5.2-11.el7 will be installed
+    ---> Package tftp-server.x86_64 0:5.2-11.el7 will be installed
+    --> Processing Dependency: xinetd for package: tftp-server-5.2-11.el7.x86_64
+    --> Running transaction check
+    ---> Package xinetd.x86_64 2:2.3.15-12.el7 will be installed
+    --> Finished Dependency Resolution
+
+    Dependencies Resolved
+
+    ===========================================================================================================================================================================================
+    Package                                       Arch                                     Version                                              Repository                               Size
+    ===========================================================================================================================================================================================
+    Installing:
+    tftp                                          x86_64                                   5.2-11.el7                                           rhel7                                    35 k
+    tftp-server                                   x86_64                                   5.2-11.el7                                           rhel7                                    44 k
+    Installing for dependencies:
+    xinetd                                        x86_64                                   2:2.3.15-12.el7                                      rhel7                                   128 k
+
+    Transaction Summary
+    ===========================================================================================================================================================================================
+    Install  2 Packages (+1 Dependent package)
+
+    Total download size: 207 k
+    Installed size: 373 k
+    Is this ok [y/d/N]: y
+    Downloading packages:
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Total                                                                                                                                                      787 kB/s | 207 kB  00:00:00
+    Running transaction check
+    Running transaction test
+    Transaction test succeeded
+    Running transaction
+      Installing : 2:xinetd-2.3.15-12.el7.x86_64                                                                                                                                           1/3
+      Installing : tftp-server-5.2-11.el7.x86_64                                                                                                                                           2/3
+      Installing : tftp-5.2-11.el7.x86_64                                                                                                                                                  3/3
+      Verifying  : 2:xinetd-2.3.15-12.el7.x86_64                                                                                                                                           1/3
+      Verifying  : tftp-5.2-11.el7.x86_64                                                                                                                                                  2/3
+      Verifying  : tftp-server-5.2-11.el7.x86_64                                                                                                                                           3/3
+
+    Installed:
+      tftp.x86_64 0:5.2-11.el7                                                                 tftp-server.x86_64 0:5.2-11.el7
+
+    Dependency Installed:
+      xinetd.x86_64 2:2.3.15-12.el7
+
+    Complete!
+  ```
+
+* 1.在`RHEL 7`系统中，`TFTP`服务是使用`xinetd`服务程序来管理的。`xinetd`服务可以用来管理多种轻量级的网络服务，而且具有强大的日志功能。简单来说，在安装`TFTP`软件包后，还需要在`xinetd`服务程序中将其开启，把默认的禁用（`disable`）参数修改为`no`：
+
+  ```shell
+    [root@localhost ~]# vim /etc/xinetd.d/tftp
+    # default: off
+    # description: The tftp server serves files using the trivial file transfer \
+    #       protocol.  The tftp protocol is often used to boot diskless \
+    #       workstations, download configuration files to network-aware printers, \
+    #       and to start the installation process for some operating systems.
+    service tftp
+    {
+            socket_type             = dgram
+            protocol                = udp
+            wait                    = yes
+            user                    = root
+            server                  = /usr/sbin/in.tftpd
+            server_args             = -s /var/lib/tftpboot
+            disable                 = no
+            per_source              = 11
+            cps                     = 100 2
+            flags                   = IPv4
+    }
+  ```
+
+* 2.然后，重启`xinetd`服务并将它添加到系统的开机启动项中，以确保`TFTP`服务在系统重启后依然处于运行状态。考虑到有些系统的防火墙默认没有允许`UDP`协议的`69`端口，因此需要手动将该端口号加入到防火墙的允许策略中：
+
+  ```shell
+    [root@localhost ~]# systemctl restart xinetd
+    [root@localhost ~]# systemctl enable xinetd
+    [root@localhost ~]# firewall-cmd --permanent --add-port=69/udp
+    success
+    [root@localhost ~]# firewall-cmd --reload
+    success
+  ```
+
+* 3.`TFTP`的根目录为`/var/lib/tftpboot`。我们可以使用刚安装好的`tftp`命令尝试访问其中的文件，亲身体验`TFTP`服务的文件传输过程。在使用`tftp`命令访问文件时，可能会用到表11-5中的参数。
+
+* `tftp`命令中可用的参数以及作用
+
+  命令|作用
+  -|-
+  `?`|帮助信息
+  `put`|上传文件
+  `get`|下载文件
+  `verbose`|显示详细的处理信息
+  `status`|显示当前的状态信息
+  `binary`|使用二进制进行传输
+  `ascii`|使用`ASCII`码进行传输
+  `timeout`|设置重传的超时时间
+  `quit`|退出
+
+  ```shell
+    [root@localhost ~]# echo "i love linux" > /var/lib/tftpboot/readme.txt
+    [root@localhost ~]# tftp 192.168.10.10
+    tftp> get readme.txt
+    tftp> quit
+    [root@localhost ~]# ls
+    anaconda-ks.cfg  Desktop  Documents  Downloads  initial-setup-ks.cfg  Music  Pictures  Public  readme.txt  Templates  Videos
+    [root@localhost ~]# cat readme.txt
+    i love linux
+  ```
