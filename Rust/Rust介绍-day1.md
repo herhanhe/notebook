@@ -1,3 +1,12 @@
+<!--
+ * @Author: herhan
+ * @Date: 2020-06-09 21:43:29
+ * @LastEditTime: 2020-06-26 10:37:54
+ * @LastEditors: herhan
+ * @Description: In User Settings Edit
+ * @FilePath: \github\notebook\Rust\Rust介绍-day1.md
+--> 
+
 # `Rust` 介绍
 
 ---
