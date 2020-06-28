@@ -1,7 +1,19 @@
 # Linux-day12 使用`Samba`或`NFS`实现文件共享
 
 ---
+<!-- TOC -->
 
+- [Linux-day12 使用`Samba`或`NFS`实现文件共享](#linux-day12-使用samba或nfs实现文件共享)
+  - [12.1 `Samba`文件共享服务](#121-samba文件共享服务)
+    - [12.1.1 `Samba`服务的历史](#1211-samba服务的历史)
+    - [12.1.2 `Samba`服务的安装](#1212-samba服务的安装)
+    - [12.1.3 配置共享资源](#1213-配置共享资源)
+    - [12.1.4 `Windows`挂载共享](#1214-windows挂载共享)
+    - [12.1.4 `Linux`挂载共享](#1214-linux挂载共享)
+  - [12.2 NFS网络文件系统](#122-nfs网络文件系统)
+  - [12.3 `AutoFs`自动挂载服务](#123-autofs自动挂载服务)
+
+<!-- /TOC -->
 ## 12.1 `Samba`文件共享服务
 
 ### 12.1.1 `Samba`服务的历史
@@ -795,3 +807,93 @@
   ```
 
 * 处于生产环境中的`Linux`服务器，一般会同时管理许多设备的挂载操作。如果把这些设备挂载信息都写入到`autofs`服务的主配置文件中，无疑会让主配置文件臃肿不堪，不利于服务执行效率，也不利于日后修改里面的配置内容，因此在`autofs`服务程序的主配置文件中需要按照“挂载目录 子配置文件”的格式进行填写。挂载目录是设备挂载位置的上一级目录。例如，光盘设备一般挂载到`/media/cdrom`目录中，那么挂载目录写成`/media`即可。对应的子配置文件则是对这个挂载目录内的挂载设备信息作进一步的说明。子配置文件需要用户自行定义，文件名字没有严格要求，但后缀建议以`.misc`结束。
+
+  ```shell
+    [root@localhost ~]# vim /etc/auto.master
+    #
+    # Sample auto.master file
+    # This is an automounter map and it has the following format
+    # key [ -mount-options-separated-by-comma ] location
+    # For details of the format look at autofs(5).
+    #
+    /media  /etc/iso.misc
+    /misc   /etc/auto.misc
+    #
+    # NOTE: mounts done from a hosts map will be mounted with the
+    #       "nosuid" and "nodev" options unless the "suid" and "dev"
+    #       options are explicitly given.
+    #
+    /net    -hosts
+    #
+    # Include /etc/auto.master.d/*.autofs
+    #
+    +dir:/etc/auto.master.d
+    #
+    # Include central master map if it can be found using
+    # nsswitch sources.
+    #
+    # Note that if there are entries for /net or /misc (as
+    # above) in the included master map any keys that are the
+    # same will not be seen as the first read key seen takes
+    # precedence.
+    #
+    +auto.master
+  ```
+
+* 在子配置文件中，应按照“挂载目录 挂载文件类型及权限 :设备名称”的格式进行填写。例如，要把光盘设备挂载到`/media/iso`目录中，可将挂载目录写为`iso`，而`-fstype`为文件系统格式参数，`iso9660`为光盘设备格式，`ro`、`nosuid`及`nodev`为光盘设备具体的权限参数，`/dev/cdrom`则是定义要挂载的设备名称。配置完成后再顺手将`autofs`服务程序启动并加入到系统启动项中：
+
+  ```shell
+    [root@localhost ~]# vim /etc/iso.misc
+    iso     -fstype=iso9660,ro,nosuid,nodev :/dev/cdrom
+    [root@localhost ~]# systemctl start autofs
+    [root@localhost ~]# systemctl enable  autofs
+    ln -s '/usr/lib/systemd/system/autofs.service' '/etc/systemd/system/multi-user.target.wants/autofs.service'
+  ```
+
+* 接下来将发生一件非常有趣的事情。我们先查看当前的光盘设备挂载情况，确认光盘设备没有被挂载上，而且`/media`目录中根本就没有`iso`子目录。但是，我们却可以使用`cd`命令切换到这个`iso`子目录中，而且光盘设备会被立即自动挂载上。我们也就能顺利查看光盘内的内容了
+
+  ```shell
+    [root@localhost ~]# df -h
+    Filesystem                Size  Used Avail Use% Mounted on
+    /dev/mapper/rhel-root      18G  3.0G   15G  18% /
+    devtmpfs                  985M     0  985M   0% /dev
+    tmpfs                     994M  140K  994M   1% /dev/shm
+    tmpfs                     994M  8.8M  986M   1% /run
+    tmpfs                     994M     0  994M   0% /sys/fs/cgroup
+    /dev/sda1                 497M  119M  379M  24% /boot
+    /dev/sr0                  3.5G  3.5G     0 100% /run/media/root/RHEL-7.0 Server.x86_64
+    //192.168.10.10/database   18G  3.0G   15G  18% /database
+    192.168.10.10:/nfsfile     18G  3.0G   15G  18% /nfsfile
+    [root@localhost ~]# cd /media/
+    [root@localhost media]# ls -l
+    total 0
+    [root@localhost media]# cd iso
+    [root@localhost iso]# ls -l
+    total 812
+    dr-xr-xr-x.  4 root root   2048 May  7  2014 addons
+    dr-xr-xr-x.  3 root root   2048 May  7  2014 EFI
+    -r--r--r--.  1 root root   8266 Apr  4  2014 EULA
+    -r--r--r--.  1 root root  18092 Mar  6  2012 GPL
+    dr-xr-xr-x.  3 root root   2048 May  7  2014 images
+    dr-xr-xr-x.  2 root root   2048 May  7  2014 isolinux
+    dr-xr-xr-x.  2 root root   2048 May  7  2014 LiveOS
+    -r--r--r--.  1 root root    108 May  7  2014 media.repo
+    dr-xr-xr-x.  2 root root 774144 May  7  2014 Packages
+    dr-xr-xr-x. 24 root root   6144 May  7  2014 release-notes
+    dr-xr-xr-x.  2 root root   4096 May  7  2014 repodata
+    -r--r--r--.  1 root root   3375 Apr  1  2014 RPM-GPG-KEY-redhat-beta
+    -r--r--r--.  1 root root   3211 Apr  1  2014 RPM-GPG-KEY-redhat-release
+    -r--r--r--.  1 root root   1568 May  7  2014 TRANS.TBL
+    [root@localhost iso]# df -h
+    df: ‘/media/cdrom’: No such file or directory
+    Filesystem                Size  Used Avail Use% Mounted on
+    /dev/mapper/rhel-root      18G  3.0G   15G  18% /
+    devtmpfs                  985M     0  985M   0% /dev
+    tmpfs                     994M  140K  994M   1% /dev/shm
+    tmpfs                     994M  8.8M  986M   1% /run
+    tmpfs                     994M     0  994M   0% /sys/fs/cgroup
+    /dev/sda1                 497M  119M  379M  24% /boot
+    /dev/sr0                  3.5G  3.5G     0 100% /media/iso
+    //192.168.10.10/database   18G  3.0G   15G  18% /database
+    192.168.10.10:/nfsfile     18G  3.0G   15G  18% /nfsfile
+  ```
