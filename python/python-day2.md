@@ -8,15 +8,15 @@ notebook: pyhton
 ---
 <!-- TOC -->
 
-- [Python基础2](#python基础2)
-    - [1.列表、元组操作](#1列表元组操作)
-        - [列表](#列表)
-        - [元组](#元组)
-    - [2.字符串的操作](#2字符串的操作)
-    - [3.字典操作](#3字典操作)
-    - [4. 集合操作](#4-集合操作)
-    - [5.文件操作](#5文件操作)
-    - [练习](#练习)
+- [# Python基础2](#h1-idpython基础2-912python基础2h1)
+- [1.列表、元组操作](#1列表元组操作)
+- [### 列表](#h3-id列表-912列表h3)
+  - [元组](#元组)
+- [2.字符串的操作](#2字符串的操作)
+- [3.字典操作](#3字典操作)
+- [4. 集合操作](#4-集合操作)
+- [5.文件操作](#5文件操作)
+- [练习](#练习)
 
 <!-- /TOC -->
 ## 1.列表、元组操作
@@ -531,7 +531,7 @@ notebook: pyhton
   # Pad a numeric string with zeros on the left, to fill a field of the given width.
   # The string is never truncated.
   # 输出
-  '000000000000herhan , chinese name is han'
+  'herhan , chinese name is han'
 
   print(name.ljust(40,"-"))
   # Return a left-justified string of length width.

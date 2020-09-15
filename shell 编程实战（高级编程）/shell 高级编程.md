@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2019-11-12 22:12:10
+ * @LastEditTime: 2020-08-21 11:00:36
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \github\shell 编程实战（高级编程）\shell 高级编程.md
+--> 
 ---
 title: shell 高级编程
 tags: 学习
