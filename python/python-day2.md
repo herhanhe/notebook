@@ -8,14 +8,15 @@ notebook: pyhton
 ---
 <!-- TOC -->
 
-- [# Python基础2](#h1-idpython基础2-11382python基础2h1)
+- [# Python基础2](#h1-idpython基础2-48python基础2h1)
 - [1.列表、元组操作](#1列表元组操作)
-- [### 列表](#h3-id列表-11382列表h3)
+- [### 列表](#h3-id列表-48列表h3)
   - [元组](#元组)
 - [2.字符串的操作](#2字符串的操作)
 - [3.字典操作](#3字典操作)
-- [4. 集合操作](#4-集合操作)
+- [4.集合操作](#4集合操作)
 - [5.文件操作](#5文件操作)
+- [6.](#6)
 - [练习](#练习)
 
 <!-- /TOC -->
@@ -817,7 +818,7 @@ notebook: pyhton
         print(item)
   ```
 
-## 4. 集合操作
+## 4.集合操作
 
 * 集合是一个无序的，不重复的数据组合，它的主要作用如下
   
@@ -1133,7 +1134,109 @@ notebook: pyhton
       0
       0
     ```
+* 其他操作
+  ```python
+    def close(self): # real signature unknown; restored from __doc__
+        """
+        Close the file.
+        
+        A closed file cannot be used for further I/O operations.  close() may be
+        called more than once without error.
+        """
+        pass
+    # 返回基础文件描述符(整数)。
+    def fileno(self, *args, **kwargs): # real signature unknown 
+        """ Return the underlying file descriptor (an integer). """        
+        pass
+    # 如果文件连接到TTY设备，则为真。
+    def isatty(self, *args, **kwargs): # real signature unknown
+        """ True if the file is connected to a TTY device. """
+        pass
+
+    def read(self, size=-1): # known case of _io.FileIO.read
+        """
+        注意，不一定能全读回来
+        Read at most size bytes, returned as bytes.
+        
+        Only makes one system call, so less data may be returned than requested.
+        In non-blocking mode, returns None if no data is available.
+        Return an empty bytes object at EOF.
+        """
+        return ""
+    # 如果文件以读模式打开，则为真。
+    def readable(self, *args, **kwargs): # real signature unknown
+        """ True if file was opened in a read mode. """
+        pass
+
+    # 从文件中读取所有数据，以字节形式返回。
+    def readall(self, *args, **kwargs): # real signature unknown
+        """
+        Read all data from the file, returned as bytes.
+        
+        In non-blocking mode, returns as much as is immediately available,
+        or None if no data is available.  Return an empty bytes object at EOF.
+        """
+        pass
+
+    def readinto(self): # real signature unknown; restored from __doc__
+        """ Same as RawIOBase.readinto(). """
+        pass #不要用,没人知道它是干嘛用的
     
+    # 移动到新文件位置并返回文件位置。
+    def seek(self, *args, **kwargs): # real signature unknown
+        """
+        Move to new file position and return the file position.
+        
+        Argument offset is a byte count.  Optional argument whence defaults to
+        SEEK_SET or 0 (offset from start of file, offset should be >= 0); other values
+        are SEEK_CUR or 1 (move relative to current position, positive or negative),
+        and SEEK_END or 2 (move relative to end of file, usually negative, although
+        many platforms allow seeking beyond the end of a file).
+        
+        Note that not all file objects are seekable.
+        """
+        pass
+
+    # 如果文件支持随机访问，则为真。
+    def seekable(self, *args, **kwargs): # real signature unknown
+        """ True if file supports random-access. """
+        pass
+
+    # 当前文件的位置。可以为不可查找的文件提出OSError。
+    def tell(self, *args, **kwargs): # real signature unknown
+        """
+        Current file position.
+        
+        Can raise OSError for non seekable files.
+        """
+        pass
+
+    
+    def truncate(self, *args, **kwargs): # real signature unknown
+        """
+        Truncate the file to at most size bytes and return the truncated size.
+        
+        Size defaults to the current file position, as returned by tell().
+        The current file position is changed to the value of size.
+        """
+        pass
+
+    def writable(self, *args, **kwargs): # real signature unknown
+        """ True if file was opened in a write mode. """
+        pass
+
+    def write(self, *args, **kwargs): # real signature unknown
+        """
+        Write bytes b to file, return number written.
+        
+        Only makes one system call, so not all of the data may be written.
+        The number of bytes actually written is returned.  In non-blocking mode,
+        returns None if the write would block.
+        """
+        pass
+  ```    
+## 6.
+
 ## 练习
 
 * 程序：购物车程序
@@ -1156,3 +1259,5 @@ notebook: pyhton
   > 3.可随时退出程序
 
   * 参考：[level_3_menu.py](https://github.com/herhanhe/s14/master/day02/level_3_menu.py)
+
+
