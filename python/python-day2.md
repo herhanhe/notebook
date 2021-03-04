@@ -8,9 +8,9 @@ notebook: pyhton
 ---
 <!-- TOC -->
 
-- [# Python基础2](#h1-idpython基础2-48python基础2h1)
+- [# Python基础2](#h1-idpython基础2-63643python基础2h1)
 - [1.列表、元组操作](#1列表元组操作)
-- [### 列表](#h3-id列表-48列表h3)
+- [### 列表](#h3-id列表-63643列表h3)
   - [元组](#元组)
 - [2.字符串的操作](#2字符串的操作)
 - [3.字典操作](#3字典操作)
@@ -1249,7 +1249,7 @@ notebook: pyhton
   > 5.用户入口：1.商品信息存在文件里  2.已购商品，余额记录。
   > 6.商家入口: 1.可以添加商品，修改商品价格
 
-  * 参考：[shopping.py](https://github.com/herhanhe/s14/master/day02/shopping.py)
+  * 参考：[shopping.py](https://github.com/herhanhe/s14/blob/master/day02/shopping.py)
 
 * 程序: 三级菜单
 
@@ -1258,6 +1258,4 @@ notebook: pyhton
   > 2.可返回上一级
   > 3.可随时退出程序
 
-  * 参考：[level_3_menu.py](https://github.com/herhanhe/s14/master/day02/level_3_menu.py)
-
-
+  * 参考：[level_3_menu.py](https://github.com/herhanhe/s14/blob/master/day02/level_3_menu.py)
