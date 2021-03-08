@@ -241,6 +241,7 @@
 * `firewall-cmd`命令中使用的参数以及作用:
 
 参数|作用
+-|-
 `--get-default-zone`|查询默认的区域名称
 `--set-default-zone=<区域名称>`|设置默认的区域，使其永久生效
 `--get-zones`|显示可用的区域
