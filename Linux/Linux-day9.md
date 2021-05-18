@@ -379,9 +379,9 @@
   `MaxSessions 10`|最大终端数
   `PasswordAuthentication yes`|是否允许密码验证
   `PermitEmptyPasswords on`|是否允许空密码登录（很不安全）
-* `ssh [参数] 主机IP地址`
+* 登录使用`ssh [参数] 主机IP地址`,登出使用`exit`.
   ```shell
-    [root@backup ~]# ssh root@10.0.0.41
+    [root@herhan ~]# ssh root@10.0.0.41
     The authenticity of host '10.0.0.41 (10.0.0.41)' can't be established.       
     ECDSA key fingerprint is SHA256:LO0ESvH9o7/G6BDDY0WLRb0a9+3SfU1/c7HL5BzRCH0. 
     ECDSA key fingerprint is MD5:82:cd:09:35:b1:76:95:88:d6:34:aa:ef:b8:ba:5b:c4.
@@ -391,7 +391,111 @@
     Last failed login: Tue May 18 05:54:03 CST 2021 on tty1
     There were 2 failed login attempts since the last successful login.
     Last login: Mon May 17 22:56:42 2021 from 10.0.0.1
-    [root@backup ~]# exit
+    [root@herhan ~]# exit
     logout
     Connection to 10.0.0.41 closed.
   ```
+### 2.2 安全密钥验证
+* 加密是对信息进行编码和解码技术，它通过一定的算法（密钥）将原有可以直接阅读的明文信息转换成密文形式。
+* 密钥即是密文的钥匙，有私钥和公钥之分。
+* 配置密钥验证方式
+  * 1.在客户端主机中生成“密钥对”
+    ```shell
+      [root@herhan ~]# ssh-keygen
+      Generating public/private rsa key pair.
+      Enter file in which to save the key (/root/.ssh/id_rsa): 
+      Enter passphrase (empty for no passphrase): 
+      Enter same passphrase again: 
+      Your identification has been saved in /root/.ssh/id_rsa.      
+      Your public key has been saved in /root/.ssh/id_rsa.pub.      
+      The key fingerprint is:
+      SHA256:FRTH/xjPEmt6xzbc2TtwMBOuFDEWsHAaT0ig0gYLEWk root@backup
+      The key's randomart image is:
+      +---[RSA 2048]----+
+      |+=   .o+.==B+    |
+      |oE+ .  .B o+o.   |
+      |.o +   . o. o..  |
+      |  o      . . =+  |
+      |        S . . +O |
+      |           . .=.+|
+      |             o+o+|
+      |            . .=*|
+      |             . ++|
+      +----[SHA256]-----+
+    ```
+  * 2.把客户端主机中生成的公钥文件传送至远程主机
+    ```shell
+      [root@herhan ~]# ssh-copy-id 10.0.0.41
+      /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/id_rsa.pub"
+      /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+      /usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+      root@10.0.0.41's password: 
+
+
+      Now try logging into the machine, with:   "ssh '10.0.0.41'"
+      and check to make sure that only the key(s) you wanted were added.
+    ```
+  * 3.对服务器进行设置，使其只允许密钥验证，拒绝传统的口令验证方式。记得在修改配置文件后保存并重启sshd服务程序
+    ```shell
+      [root@herhan ~]# vim /etc/ssh/sshd_config 
+      ………………省略部分输出信息………………
+      70 # To disable tunneled clear text passwords, change to no here!
+      71 #PasswordAuthentication yes
+      72 #PermitEmptyPasswords no
+      73 PasswordAuthentication no
+      74 
+      ………………省略部分输出信息………………
+      [root@herhan ~]# systemctl restart sshd
+    ```
+  * 4.在客户端尝试登录到服务器，此时无须输入密码也可成功登录，特别方便：
+    ```shell
+      [root@herhan ~]# ssh 10.0.0.41
+      Last login: Mon Apr 13 19:34:13 2017
+    ```
+### 2.3 远程传输命令
+* `scp(secure copy)`是一个基于`SSH`协议在网络之间进行安全传输的命令。
+  * 上传的格式:`scp [参数] 本地文件 远程账户@远程IP地址:远程目录`
+  * `scp`命令中可用的参数及作用
+    
+    参数|作用
+    -|-
+    `-V`|显示详细的连接进度
+    `-P`|指定远程主机的`sshd`端口号
+    `-r`|用于传送文件夹
+    `-6`|使用IPv6协议
+    ```shell
+      [root@Client ~]# echo "Welcome to LinuxProbe.Com" > readme.txt
+      [root@Client ~]# scp /root/readme.txt 192.168.10.10:/home
+      readme.txt                                    100%   26    13.6KB/s   00:00
+    ```
+  * 下载的格式:`scp [参数] 远程用户@远程IP地址:远程文件 本地目录`
+    ```shell
+      [root@Client ~]# scp 10.0.0.41:/etc/redhat-release /root
+      [root@Client ~]# scp 10.0.0.41:/etc/redhat-release /root
+      redhat-release                                100%   45    23.6KB/s   00:00    
+      [root@Client ~]# cat redhat-release 
+      Red Hat Enterprise Linux release 8.0 (Ootpa)
+    ```
+
+## 3.不间断会话服务
+* `screen`是一款能够实现多窗口远程控制的开源服务程序，简单来说就是为了解决网络异常中断或为了同时控制多个远程终端窗口而设计的，能够做到实现如下功能：
+  * 会话恢复
+  * 多窗口
+  * 会话共享
+### 3.1 管理远程会话
+* `screen`常用的参数：
+  
+  参数|作用
+  -|-
+  `-S`|参数创建会话窗口
+  `-d`|参数将指定会话进行离线处理
+  `-r`|参数恢复指定会话
+  `-x`|参数一次性恢复所有的会话
+  `-ls`|参数显示当前已有的会话
+  `-wipe`|参数把目前无法使用的会话删除
+
+* 不再使用某个会话窗口，可以把它设置为临时断开(detach)模式，随后在需要再重新连接(attach)回来即可。
+### 3.2 会话共享功能
+* `screen`的会话共享功能的流程
+
+![9-4](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/assets/Linux/9-4.png)
