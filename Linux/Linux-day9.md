@@ -356,4 +356,42 @@
     Permanent HW addr: 00:0c:29:56:69:61
     Slave queue ID: 0
   ```
+## 2.远程控制服务
+### 2.1 配置sshd服务
+* `SSH（Secure Shell）`是一种能够以安全的方式提供远程登录的协议，也是目前远程管理`Linux`系统的首选方式。
+* `sshd`是基于`SSH`协议开发的一款远程管理服务程序，而且能够提供两种安全验证的方法：
+  * 基于口令的验证——用账户和密码来验证登录；
+  * 基于密钥的验证——需要在本地生成密钥对，然后把密钥对中的公钥上传至服务器，并与服务器中的公钥进行比较；该方式相较来说更安全。
+* `sshd`服务的配置文件位置：`/etc/ssh/sshd_config`
+  * `sshd`服务的配置文件中包含的参数以及作用
   
+  参数|作用
+  -|-
+  `Port` 22|默认的`sshd`服务端口
+  `ListenAddress` 0.0.0.0|设定`sshd`服务器监听的`IP`地址
+  `Protocol` 2|`SSH`协议的版本号
+  `HostKey /etc/ssh/ssh_host_key`|`SSH`协议版本为1时，`DES`私钥存放的位置
+  `HostKey /etc/ssh/ssh_host_rsa_key`|`SSH`协议版本为2时，RSA私钥存放的位置
+  `HostKey /etc/ssh/ssh_host_dsa_key`|`SSH`协议版本为3时，DSA私钥存放的位置
+  `PermitRootLogin yes`|设定是否允许`root`管理员直接登录
+  `StrictModes yes`|当远程用户的私钥改变时直接拒绝连接
+  `MaxAuthTries 6`|最大密码尝试次数
+  `MaxSessions 10`|最大终端数
+  `PasswordAuthentication yes`|是否允许密码验证
+  `PermitEmptyPasswords on`|是否允许空密码登录（很不安全）
+* `ssh [参数] 主机IP地址`
+  ```shell
+    [root@backup ~]# ssh root@10.0.0.41
+    The authenticity of host '10.0.0.41 (10.0.0.41)' can't be established.       
+    ECDSA key fingerprint is SHA256:LO0ESvH9o7/G6BDDY0WLRb0a9+3SfU1/c7HL5BzRCH0. 
+    ECDSA key fingerprint is MD5:82:cd:09:35:b1:76:95:88:d6:34:aa:ef:b8:ba:5b:c4.
+    Are you sure you want to continue connecting (yes/no)? yes
+    Warning: Permanently added '10.0.0.41' (ECDSA) to the list of known hosts.
+    root@10.0.0.41's password: 
+    Last failed login: Tue May 18 05:54:03 CST 2021 on tty1
+    There were 2 failed login attempts since the last successful login.
+    Last login: Mon May 17 22:56:42 2021 from 10.0.0.1
+    [root@backup ~]# exit
+    logout
+    Connection to 10.0.0.41 closed.
+  ```
