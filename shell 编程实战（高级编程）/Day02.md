@@ -8,6 +8,24 @@
 --> 
 # `Shell`高级编程 Day02
 
+<!-- TOC -->
+
+- [`Shell`高级编程 Day02](#shell高级编程-day02)
+  - [1.`shell`](#1shell)
+  - [2.`shell` 脚本](#2shell-脚本)
+  - [3.`shell`脚本在运维工作中的作用地位](#3shell脚本在运维工作中的作用地位)
+  - [4.脚本语言的种类](#4脚本语言的种类)
+    - [4.1 `Shell`脚本语言的种类](#41-shell脚本语言的种类)
+    - [4.2 其他常用的脚本语言种类](#42-其他常用的脚本语言种类)
+    - [4.3 `Shell`脚本语言的优势](#43-shell脚本语言的优势)
+  - [5 常用操作系统默认的`Shell`](#5-常用操作系统默认的shell)
+  - [6 `Shell`脚本的建立和执行](#6-shell脚本的建立和执行)
+    - [6.1 `Shell`脚本的建立](#61-shell脚本的建立)
+    - [6.2 `Shell`脚本的执行](#62-shell脚本的执行)
+    - [6.3 shell脚本开发的基本规范及习惯](#63-shell脚本开发的基本规范及习惯)
+
+<!-- /TOC -->
+
 ## 1.`shell`
 
 * `shell`是一个命令解释器，它在操作系统的最外层，负责直接与用户对话，把用户的输入解释个操作系统，并处理各种各样的操作系统的输出结果，输出到屏幕返回给用户。
@@ -234,4 +252,79 @@
     ![2-1](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/assets/shell%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/2.1.png)
   * **特殊技巧:设置`Linux`的`crond`任务时,最好能在定时任务脚本中重新定义系统环境变量,否则,一些系统环境变量将不会被加载,这个问题需要注意**
 * 2.`Shell`脚本的执行通常可以采用以下几种方式.
-  * 
+  * 1）`ash script-name`或`sh script-name`:这是当脚本文件本身没有可执行权限时常使用的方法，或者脚本文件开头没有指定解释器时需要使用的方法。
+  * 2）`path/script-name`或`./script-name`:指在当前路径下执行脚本，需要将脚本文件的权限先改为可执行。
+  * 3）`source script-name`或`.script-name`:这种方法通常是使用`source`或`.`(点号)读入或加载指定的shell脚本文件，通过`source`或`.`加载执行过的脚本，由于是在当前`shell`中执行脚本。因此在脚本结束之后，脚本中的变量（包含函数）值在当前Shell中依然存在，而sh和bash执行脚本都会启动新的子Shell执行，执行后退回到父Shell。**`source`或`.`命令的功能是：在当前shell中执行source或`.`加载并执行的相关脚本文件中的命令及语句，而不是产生一个子shell来执行文件中的命令。** 
+  * 4）`sh<script-name`或`cat scripts-name|sh`:
+  ```bash
+      # 范例
+      # 创建脚本test.sh
+      [root@herhan ~]# cat >test.sh<<EOF
+      > echo 'I am herhan'
+      > EOF
+      [root@herhan ~]# cat test.sh
+      echo 'I am herhan'
+      
+      # 第一种方法
+      [root@herhan ~]# bash test.sh 
+      I am herhan
+      [root@herhan ~]# sh test.sh 
+      I am herhan
+
+      # 第二种方法
+      [root@herhan ~]# ./test.sh
+      -bash: ./test.sh: Permission denied
+      [root@herhan ~]# chmod +x test.sh 
+      [root@herhan ~]# ./test.sh
+      I am herhan
+
+      # 第三种方法
+      [root@herhan ~]# . test.sh 
+      I am herhan
+      [root@herhan ~]# source test.sh 
+      I am herhan
+
+      [root@herhan ~]# echo 'userdir=`pwd`' >testsource.sh  #<==第一行的内容通常用echo处理更方便
+      [root@herhan ~]# cat testsource.sh  #<==定义了一个命令变量，内容是打印当前路径。注意，打印命令用反引号
+      userdir=`pwd`
+      [root@herhan ~]# sh testsource.sh  #<==采用sh命令执行脚本
+      [root@herhan ~]# echo $userdir  #<==此处为空，并没有出现当前路径/root的输出
+
+      [root@herhan ~]# . testsource.sh  #<==采用source执行同一脚本
+      [root@herhan ~]# echo $userdir  #<==此处输出了当前路径/root
+      /root
+
+      # 第四种方法
+      [root@herhan ~]# chmod -x test.sh 
+      [root@herhan ~]# ls -l test.sh 
+      -rw-r--r-- 1 root root 19 Jun 24 12:34 test.sh
+      [root@herhan ~]# cat test.sh 
+      echo 'I am herhan'
+      [root@herhan ~]# sh<test.sh
+      I am herhan
+      [root@herhan ~]# cat test.sh | bash
+      I am herhan
+  ```
+
+### 6.3 shell脚本开发的基本规范及习惯
+* 1)shell脚本的第一行是指定脚本解释器，通常为：
+  ```shell
+    #!/bin/bash或#!/bin/sh
+  ```
+* 2)shell脚本的开头会加版本、版权等信息，可修改`~/.vimrc`配置文件配置vim编辑文件时自动加上以上信息的功能
+  ```shell
+    # Date:
+    # Auther:
+    # Blog:
+    # Desciption:
+    # Version:
+  ```
+* 3)在Shell脚本中尽量不用中文
+* 4)Shell脚本的命名应以.sh为扩展名
+* 5)Shell脚本应存放在固定的路径下
+===========习惯=============
+* 1)成对的符号应尽量一次性写出来，然后退格在符号里增加内容，以防止遗漏。
+* 2)对于流程控制语句，应一次性将格式写完，载添加内容。
+* 3)通过缩进让代码更易读
+* 4)对于常规变量的字符串定义变量值应加双引号，并且等号前后不能有空格，需要强引用的（指所见即所得的字符引用），则用单引号（''），如果是命令的引用，则用反引号（``）.
+* 5)脚本中的单引号、双引号及反引号必须为英文状态下的符号，其实所有的Linux字符及符号都应该是英文状态下的符号。
