@@ -78,5 +78,37 @@
   * `declare`命令输出所有的变量、函数、整数和已经导出的变量
   
   ```bash
-  
+    # 范例3-1
+    # env
+    [root@herhan ~]# env|tail
+    PWD=/root
+    LANG=en_US.UTF-8
+    HISTCONTROL=ignoredups
+    SHLVL=1
+    HOME=/root
+    LOGNAME=root
+    SSH_CONNECTION=219.144.184.70 19397 172.30.199.136 22
+    LESSOPEN=||/usr/bin/lesspipe.sh %s
+    XDG_RUNTIME_DIR=/run/user/0
+    _=/usr/bin/env
+
+    # declare
+    [root@herhan ~]# set -o|head
+    allexport       off
+    braceexpand     on
+    emacs           on
+    errexit         off
+    errtrace        off
+    functrace       off
+    hashall         on
+    histexpand      on
+    history         on
+    ignoreeof       off
   ```
+
+### 2.1 自定义环境变量
+* 1.设置环境变量
+  * export命令和declare命令
+    * `export 变量名=value`
+    * `变量名=value;export 变量名`
+    * `declare -x 变量名=value`
