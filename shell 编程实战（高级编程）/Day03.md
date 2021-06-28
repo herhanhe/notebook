@@ -44,3 +44,39 @@
     `HISTSIZE=50`|记录在命令行历史文件中的命令行数
     `HOME=/root`|当前用户家目录
     `HOSTNAME=herhan`|当前主机名称
+    `HOSTTYPE=x86_64`|当前操作系统类型
+    `IFS=S'\t\n'`|内部字段分隔符，一般是空格符、制表符和换行符、用于划分由命令替换、循环结构中的表和所读取的输入产生的词的字段
+    `INPUTRC=/etc/inputrc`|readline启动文件的文件名，取代默认的~/.inputrc
+    `LANG=zh_CN.UTF-8`|字符集
+    `LOGNAME=root`|登录用户名称
+    `MACHTYPE=x86_64-redhat-linux-gnu`|包含一个描述正在运行bash的系统串
+    `MAILCHECK=60`|这个参数定义Shell将隔多长时间（以秒为单位）检查一次由参数MAILPATH或MAILFILE指定的文件，看看是否有邮件到达。默认值为600s
+    `MAIL=/var/spool/mail/root`|邮件全路径
+    `OLDPWD=/root`|前一个当前工作目录
+    `OPTIND=1`|下一个由getopts内置命令处理的参数的序号
+    `OSTYPE=linux-gnu`|自动设置成一个串，该串描述正在运行bash的操作系统，默认值由系统来决定
+    `PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin`|全局PATH路径，命令搜索路径。一个由冒号分隔的目录列表，Shell用它来搜索命令。默认路径由系统来决定，并且由安装bash的管理员来设置
+    `PIPESTATUS=([0]="0"[1]="0")`|一个数组，包含一列最近在管道执行的前台作业的进程退出的状态值
+    `PPID=1112`|父进程的进程ID
+    `PS1=[\u@\h \W]\$`|主提示符串，默认值是$
+    `PS2='>'`|次提示符串，默认值是>
+    `PS4='+'`|开启追踪时使用的是调试提示符串，默认值是+，追踪可用set-x开启
+    `PWD=/home`|当前用户家目录
+    `RESIN_HOME=/application/resin-3.1.6`|这是通过export人为设置的环境变量
+    `SHELL=/bin/bash`|登录Shell类型
+    `SHELLOPTS=braceexpand:emacs:hashall:histexpand:history:interactive-comments:monitor`|包含一列开启的Shell选项
+    `SHLVL=1`|每启动一个bash实例就将其加1
+    `TERM=vt100`|终端设置
+    `TMOUT=3600`|退出前等待超时的秒数
+    `UID=0`|当前用的UID，在Shell启动时初始化
+    `USER=root`|当前用户的用户名，在Shell启动时初始化
+
+* 显示环境变量：`set`、`env`和`declare`
+  * `set`命令输出所有的变量，包含全局变量和局部变量
+    * `set -o`命令显示bash Shell的所有参数配置信息
+  * `env`命令只显示全局变量
+  * `declare`命令输出所有的变量、函数、整数和已经导出的变量
+  
+  ```bash
+  
+  ```
