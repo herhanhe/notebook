@@ -112,3 +112,28 @@
     * `export 变量名=value`
     * `变量名=value;export 变量名`
     * `declare -x 变量名=value`
+  ```bash
+    # 范例：定义环境变量并赋值的方法
+    [root@herhan ~]# export NAME=herhna
+    [root@herhan ~]# echo $NAME
+    herhna
+    [root@herhan ~]# declare -x NAME=herhan
+    [root@herhan ~]# echo $NAME
+    herhan
+    [root@herhan ~]# NAME=1herhan;export NAME
+    [root@herhan ~]# echo $NAME
+    1herhan
+  ```
+  * 环境变量永久生效的常用设置
+    * （1）用户的环境变量配置，在用户家目录下的`.bashrc`和`.bash_profile`
+    * （2）全局黄精变量的配置，常见的配置文件`/etc/profile`和`/etc/bashrc`
+      * 若要在登录后初始化或显示加载内容，则把脚本文件放在`/etc/profile.d/`下即可
+
+  * 设置登录提示的两种方式
+    * （1）在`/etc/motd`里增加提示的字符串
+    * （2）在`/etc/profile.d/`下面增加脚本
+
+### 2.2 显示与取消环境变量
+* 1.通过`echo`或`printf`命令打印环境变量
+  * 常见的系统环境变量
+    * 
