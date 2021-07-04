@@ -136,4 +136,179 @@
 ### 2.2 显示与取消环境变量
 * 1.通过`echo`或`printf`命令打印环境变量
   * 常见的系统环境变量
-    * 
+    * $HOME：用户登录时进入的目录
+    * $UID：当前用户的UID（用户标识），相当于id-u
+    * $PWD：当前工作目录的绝对路径名
+    * $SHELL：当前SHELL
+    * $USER：当前用户
+  
+  ```bash
+    # 通过echo和printf命令打印环境变量
+    [root@herhan ~]# echo $HOME
+    /root
+    [root@herhan ~]# echo $UID
+    0
+    [root@herhan ~]# echo $SHELL
+    /bin/bash
+    [root@herhan ~]# echo $USER
+    root
+    [root@herhan ~]# printf "$HOME\n"
+    /root
+  ```
+
+* 2.用`env`或`set`显示默认的环境变量
+  ```bash
+    # 用env（printenv）显示默认环境变量的示例如下：
+    [root@herhan ~]# env
+    XDG_SESSION_ID=96
+    HOSTNAME=herhan
+    SHELL=/bin/bash
+    TERM=xterm-256color
+    HISTSIZE=1000
+    SSH_CLIENT=117.32.138.251 6606 22
+    SSH_TTY=/dev/pts/0
+    USER=root
+    ...
+    
+    # 用set也可以显示环境变量（包含局部变量）
+    [root@herhan ~]# set
+    BASH=/bin/bash
+    BASHOPTS=checkwinsize:cmdhist:expand_aliases:extquote:force_fignore:histappend:hostcomplete:interactive_comments:progcomp:promptvars:sourcepath
+    BASH_ALIASES=()
+    BASH_ARGC=()
+    BASH_ARGV=()
+    BASH_CMDS=()
+    BASH_LINENO=()
+    BASH_SOURCE=()
+    BASH_VERSINFO=([0]="4" [1]="2" [2]="46" [3]="2" [4]="release" [5]="x86_64-redhat-linux-gnu")
+    BASH_VERSION='4.2.46(2)-release'
+    ...
+  ```
+
+* 3.用`unset`消除本地变量和环境变量
+  ```bash
+    [root@herhan ~]# echo $USER
+    root
+    [root@herhan ~]# unset $USER
+    [root@herhan ~]# echo $USER
+  
+  ```
+### 2.3 环境变量知识小结
+* 变量名通常要大写
+* 变量可以在自身的Shell及子Shell中使用
+* 常用export来定义环境变量
+* 执行env默认可以显示所有的环境变量名称及对应的值
+* 输出时用“$变量名”，取消时用“unset变量名”
+* 书写crond定时任务时要注意，脚本要用到的环境变量最好先在所执行的Shell脚本中重新定义
+* 如果希望环境变量永久生效，则可以将其放在用户环境变量文件或全局变量文件里
+
+### 2.4 环境变量初始化与对应文件的生效顺序
+* 系统环境文件：在登录Linux系统并启动一个bash shell时，默认情况下bash会在若干个文件中查找环境变量的设置，这些文件称为系统环境文件。
+* bash检查的环境变量文件的情况取决于系统运行Shell的方式
+  * 1）通过系统用户登录后默认运行的Shell
+  * 2）非登录交互式运行Shell
+  * 3）执行脚本运行非交互式Shell
+* 第一种方式下的Shell加载环境变量的顺序
+  ![3-1](https://heh-1300576495.cos.ap-chengdu.myqcloud.com/assets/shell%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/3.1.png)
+* 第二种方式下的Shell加载环境变量的顺序
+  * 非登录Shell只会加载`$HOME/.bashrc`(用户环境变量文件)，并会去找`/etc/bashrc`(全局环境变量文件)。
+
+## 3.普通变量
+### 3.1 定义本地变量
+* 本地变量在用户当前Shell生存期的脚本中使用
+* 1.普通变量定义
+  * 1）`变量名=value`
+    * 是不加任何引号直接定义变量的内容，当内容为简单连续的数字、字符串、路径名时，可以这样用。
+    * 不加引号时，值里有变量的会被解析后再输出。
+  * 2）`变量名='value'`
+    * 这个方式的特点是：输出变量内容时单引号里是什么就输出什么，即使内容中有变量和命令（命令需要反引起来）也会把它们原样输出。这种方式比较适合于定义显示纯字符串的情况。
+  * 3）`变量名="value"`
+    * 这种方式的特点是：输出变量内容时引号里的变量及命令会经过解析后再输出内容，而不是把双引号中的变量名及命令（命令需要反引起来）原样输出。这种方式比较适合于字符串中附带有变量及命令且想将其解析后再输出的变量定义。
+* 2.在Shell中定义变量名及为变量内容赋值的要求
+  * 变量名一般是由字母、数字、下划线组成的，可以以字母或下划线开头。
+  * 变量的内容可以用单引号或双引号用引起来，也可不加引号，但是这三者的含义是不同的。
+
+```bash
+  # 采用不同的方式对普通变量进行定义，并一一打印输出
+  [root@herhan ~]# a=192.168.1.2
+  [root@herhan ~]# b='192.168.1.2'
+  [root@herhan ~]# c="192.168.1.2"
+  [root@herhan ~]# echo "a=$a"
+  a=192.168.1.2
+  [root@herhan ~]# echo "b=$b"
+  b=192.168.1.2
+  [root@herhan ~]# echo "c=${c}"
+  c=192.168.1.2
+  # `$`变量名表示输出变量，可以用`$c`和`${c}`两种用法
+  [root@herhan ~]# a=192.168.1.2-$a
+  [root@herhan ~]# b='192.168.1.2-$a'
+  [root@herhan ~]# c="192.168.1.2-$a"
+  [root@herhan ~]# echo "a=$a"
+  a=192.168.1.2-192.168.1.2
+  [root@herhan ~]# echo "b=$b"
+  b=192.168.1.2-$a
+  [root@herhan ~]# echo "c=${c}"
+  c=192.168.1.2-192.168.1.2-192.168.1.2
+```
+
+* 3.把一个命令的结果作为变量的内容赋值的方法
+  * 1）`变量名=`ls` ` #把命令用反引号引起来，不推荐使用这种方法，因为容易和单引号混淆
+  * 2）`变量名=$(ls)` #把命令用$()括起来，推荐使用这种方法
+
+```bash
+  # 用两种方法把命令的结果赋值给变量
+  [root@herhan /]# CMD=`ls`
+  [root@herhan /]# CMD1=$(pwd)
+  [root@herhan /]# echo $CMD1
+  /
+```
+```bash
+  # 按天打包网站的站点目录程序，生成不同的文件名（此为企业实战案例）
+  [root@herhan /]# CMD=$(date +%F)  # 将当前日期（格式为yyyy-mm-dd）赋值给CMD变量
+  [root@herhan /]# echo $CMD  
+  2021-07-04
+  [root@herhan /]# echo $(date +%F).tar.gz
+  2021-07-04.tar.gz
+  [root@herhan /]# echo `date +%F`.tar.gz
+  2021-07-04.tar.gz
+  [root@herhan ~]# tar zcf etc_$(date +%F).tar.gz /etc # 将时间作为压缩包名打包tar;从成员名中删除开头的“/” tar;
+  tar: Removing leading `/' from member names
+  [root@herhan ~]# ls     # 打包结果，包名中包含有当前日期
+  etc_2021-07-04.tar.gz
+  [root@herhan ~]# H=$(uname -n)
+  [root@herhan ~]# echo $H
+  herhan
+  [root@herhan ~]# tar zcf $H.tar.gz /etc/services
+  tar: Removing leading `/' from member names
+  [root@herhan ~]# ls -l
+  total 9724
+  -rw-r--r-- 1 root root 9817374 Jul  4 21:59 etc_2021-07-04.tar.gz
+  -rw-r--r-- 1 root root  136214 Jul  4 22:08 herhan.tar.gz
+```
+* 3.2 局部（普通）变量定义及赋值的经验小结
+  * 常规普通变量定义
+    * 若变量内容为连续的数字或字符串，赋值时，变量内容两边可以不加引号；
+    * 变量的内容很多时，如果有空格且希望解析内容中的变量，就加双引号；
+    * 希望原样输出变量中的内容时就用单引号引起内容进行赋值；
+  * 希望变量的内容是命令的解析结果的定义及赋值：
+    * 要使用反引号将赋值的命令括起来
+  * 变量的输出方法如下：
+    * 使用“$变量名”即可输出变量的内容，常用“echo $变量名”的方式，也可用printf代替echo输出更复杂的格式内容
+  * 变量定义的技巧及注意事项：
+    * 注意命令变量内容前后的字符``；
+    * 在变量名前加`$`可以取得该变量的值，使用echo或printf命令可以显示变量的值，`$A`和`${A}`的写法不同，但效果是一样的；
+    * 用echo等命令输出变量的时候，也可以单引号、双引号、反引号；
+    * $dbname_tname,当变量后面连接有其他字符的时候，必须给变量加上大括号{}；
+### 3.2 变量定义及变量输出说明
+名称|解释
+-|-
+单引号|所见即所得，即输出时会将单引号内的所有内容都原样输出，或者描述为单引号里面看到的是什么就会输出什么，这称为强引用
+双引号（默认）|输出双引号内的所有内容；如果内容中有命令（要反引下）、变量、特殊转义符等，会先把变量、命令、转义字符解析出结构，然后再输出最终内容，推荐使用，这称为弱引用
+无引号|赋值时，如果变量内容中有空格，则会造成赋值不完整。而在输出内容时，会将含有空格的字符串视为一个整体来输出；如果内容中有命令（要反引下）、变量等，则会先把变量、命令解析出结果，然后输出最终内容；如果字符串中带有空格等特殊字符，则有可能无法完整地输出，因此需要改加双引号。一般连续的字符串、数字、路径等可以不加任何引号进行赋值和输出，不过最好是用双引号替代无引号的情况，特别是对变量赋值时
+反引号|``一般用于引用命令，执行的时候命令会被执行，相当于$(),赋值和输出都要用将命令引起来
+
+* 建议
+  * 在脚本中定义普通字符串变量时，应尽量把变量的内容用双引号括起来。
+  * 单纯数字的变量内容可以不加引号。
+  * 希望变量的内容原样输出时需要加单引号。
+  * 希望变量值引用命令并获取命令的结果时就用反引号或$()
