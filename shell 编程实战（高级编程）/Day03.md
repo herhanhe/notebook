@@ -343,4 +343,77 @@
   [root@herhan ~]# grep '$HERHAN' grep.log
 
   # 使用awk调用Shell中的变量，分别针对加引号、不加引号等情况进行测试
+  [root@herhan ~]# ETT=123
+  [root@herhan ~]# awk 'BEGIN {print "$ETT"}'
+  $ETT
+  [root@herhan ~]# awk 'BEGIN {print $ETT}'
+
+  [root@herhan ~]# awk 'BEGIN {print '$ETT'}'
+  123 
+  [root@herhan ~]# awk 'BEGIN {print "'$ETT'"}'
+  123
+
+  [root@herhan ~]# ETT='oldgirl'
+  [root@herhan ~]# awk 'BEGIN {print "$ETT"}'
+  $ETT
+  [root@herhan ~]# awk 'BEGIN {print $ETT}'
+
+  [root@herhan ~]# awk 'BEGIN {print '$ETT'}'
+
+  [root@herhan ~]# awk 'BEGIN {print "'$ETT'"}'
+  oldgirl
+
+  [root@herhan ~]# ETT="tingting"
+  [root@herhan ~]# awk 'BEGIN {print "$ETT"}'
+  $ETT
+  [root@herhan ~]# awk 'BEGIN {print $ETT}'
+
+  [root@herhan ~]# awk 'BEGIN {print '$ETT'}'
+
+  [root@herhan ~]# awk 'BEGIN {print "'$ETT'"}'
+  tingting
+  
+  # 结论：不管变量如何定义、赋值，除了加单引号以外，利用awk直接获取变量的输出，结果都是一样的，因此，在awk取用Shell变量时，我们更多地还是喜欢先用echo加符号输出变量，然后通过管道给awk，进而控制变量的输出结果。
+  [root@herhan ~]# ETT="oldgirl"
+  [root@herhan ~]# echo "$ETT"|awk '{print $0}'
+  oldgirl
+  [root@herhan ~]# echo '$ETT'|awk '{print $0}'
+  $ETT
+  [root@herhan ~]# echo $ETT|awk '{print $0}'
+  oldgirl
+  [root@herhan ~]# ETT=`pwd`
+  [root@herhan ~]# echo '$ETT'|awk '{print $0}'
+  $ETT
+  [root@herhan ~]# echo $ETT|awk '{print $0}'
+  /root
+
+  # 通过sed指定变量关键字过滤
+  [root@herhan ~]# echo "testchars" > sed.log
+  [root@herhan ~]# echo "oldboy" >> sed.log
+  [root@herhan ~]# cat sed.log 
+  testchars
+  oldboy
+  [root@herhan ~]# OLDBOY="oldboy"
+  [root@herhan ~]# sed -n /"$OLDBOY"/p sed.log
+  oldboy
+  [root@herhan ~]# sed -n /$OLDBOY/p sed.log
+  oldboy
+  [root@herhan ~]# sed -n /'$OLDBOY'/p sed.log
 ```
+* 自定义普通字符串变量的建议
+  * 1）内容是纯数字、简单的连续字符（内容中不带任何空格）时，定义是可以不加任何引导
+  * 2）没有特殊情况时，字符串一律用双引号定义赋值，特别是多个字符串中间有空格时
+  * 3）当变量里的内容需要原样输出时，要用单引号（''）,这样的需求极少
+
+## 4.变量定义技巧总结
+* 可以多学习和模仿操作系统自带的`/etc/init.d/functions`函数库脚本的定义思路，多学习Linux系统脚本中的定义，有经验的读者最终应形成一套适合自己的规范和习惯
+  * 1）变量名及变量内容定义小结
+    * 变量名只能为字母、数字或下划线，只能以字母或下划线开头。
+    * 变量名的定义要有一定的规范，并且要见名知意。
+    * 一般的变量定义、赋值常用双引号；简单连续的字符串可以不加引号；希望原样输出使用单引号
+    * 希望变量的内容是命令的解析结果时，要用反引号``,或者用$()命令括起来再赋值
+  * 2）Shell定义变量时使用“=”的知识
+    * “a=1”里等号是赋值的意思；比较变量是否相等时也可以用“=”或“==”。
+  * 3）打印输出及使用变量的知识
+    * 打印输出或使用变量时，变量名前要接$符号；变量名后面紧接其他字符的时候，要用大括号将变量部分单独括起来
+    * 打印输出或使用变量时，一般加双引号或不加引号；如果是字符串变量，最好加双引号；希望原样输出时使用单引号。
