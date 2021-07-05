@@ -312,3 +312,35 @@
   * 单纯数字的变量内容可以不加引号。
   * 希望变量的内容原样输出时需要加单引号。
   * 希望变量值引用命令并获取命令的结果时就用反引号或$()
+
+```bash
+  # 对由反引号引起来的`date`命令或$(data)进行测试
+  [root@herhan ~]# echo 'today is date'
+  today is date
+  [root@herhan ~]# echo 'today is `date`'
+  today is `date`
+  [root@herhan ~]# echo "today is `date`"
+  today is Mon Jul  5 12:49:13 CST 2021
+  [root@herhan ~]# echo "today is $(date)"
+  today is Mon Jul  5 12:49:32 CST 2021
+  [root@herhan ~]# echo today is $(date)
+  today is Mon Jul 5 12:49:41 CST 2021
+
+  # 变量定义后，在调用变量输出打印时加引号测试
+  [root@herhan ~]# echo $HERHAN
+  123
+  [root@herhan ~]# echo '$HERHAN'
+  $HERHAN
+  [root@herhan ~]# echo "$HERHAN"
+  123
+
+  # 使用三剑客命令中的grep过滤字符串时给过滤的内容加引号
+  [root@herhan ~]# echo 123 >grep.log
+  [root@herhan ~]# cat grep.log
+  123
+  [root@herhan ~]# grep "$HERHAN" grep.log
+  123
+  [root@herhan ~]# grep '$HERHAN' grep.log
+
+  # 使用awk调用Shell中的变量，分别针对加引号、不加引号等情况进行测试
+```
