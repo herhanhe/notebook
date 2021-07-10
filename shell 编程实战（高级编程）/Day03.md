@@ -1,7 +1,10 @@
 # `Shell`高级编程 Day03
 
+
 ## 1.什么是Shell变量
-### 1.1 什么是变量 
+
+### 1.1 什么是变量
+
 * 变量就是用一个固定的字符串代替更多、更复杂的内容，该内容里可能还会包含变量、路径、字符串等其他的内容。
 * 变量是暂时存储数据的地方及数据标记，所存储的数据存在于内存空间中，通过正确地调用内存空间中变量的名字就可以取出与变量对应的数据。
 * 定义变量和打印变量：
@@ -13,21 +16,25 @@
   * 变量的赋值方式为：先写变量名称，紧接着是“=”这个字符，最后是值，**中间无任何空格**。
 
 ### 1.2 Shell变量的特性
+
 * 默认情况下，在Bash Shell中是不会区分变量类型的
 * 可以使用declare显示定义变量的类型，但在一般情况下没有这个需求。
 
 ### 1.3 变量类型
+
 * 分为两类：环境变量（全局变量）和普通变量（局部变量）
 * 环境变量也可称为全局变量，可以在创建它们的Shell及其派生出来的任意子进程Shell中使用，环境变量又可分为自定义环境变量和bash内置的环境变量
 * 普通变量也可称为局部变量，只能在创建它们的Shell函数或Shell脚本中使用。普通变量一般由开发者在开发脚本程序时创建。
 
 ## 2.环境变量
+
 * 环境变量一般是指用export内置命令导出的变量，用于定义Shell的运行环境，保证Shell命令的正确执行
 * 环境变量在用户退出命令行时会丢失
 * 永久保存环境变量：在用户家目录下的`.bash_porfile`或`.bashrc`文件中，或者全局配置`/etc/bashrc`或`/etc/profile`文件中定义。在将环境变量放入上传文件中后，每次用户登录时这些变量都将被初始化。
 * 环境变量的名字均采用大写形式。
 * 用export命令导出定义：`export OLDGIRL=1`
 * 常见的环境变量：
+
     变量名|含义
     -|-
     `_=`|上一条命令的最后一个参数
@@ -107,6 +114,7 @@
   ```
 
 ### 2.1 自定义环境变量
+
 * 1.设置环境变量
   * export命令和declare命令
     * `export 变量名=value`
@@ -134,6 +142,7 @@
     * （2）在`/etc/profile.d/`下面增加脚本
 
 ### 2.2 显示与取消环境变量
+
 * 1.通过`echo`或`printf`命令打印环境变量
   * 常见的系统环境变量
     * $HOME：用户登录时进入的目录
@@ -157,6 +166,7 @@
   ```
 
 * 2.用`env`或`set`显示默认的环境变量
+  
   ```bash
     # 用env（printenv）显示默认环境变量的示例如下：
     [root@herhan ~]# env
@@ -193,7 +203,9 @@
     [root@herhan ~]# echo $USER
   
   ```
+
 ### 2.3 环境变量知识小结
+
 * 变量名通常要大写
 * 变量可以在自身的Shell及子Shell中使用
 * 常用export来定义环境变量
@@ -203,6 +215,8 @@
 * 如果希望环境变量永久生效，则可以将其放在用户环境变量文件或全局变量文件里
 
 ### 2.4 环境变量初始化与对应文件的生效顺序
+
+
 * 系统环境文件：在登录Linux系统并启动一个bash shell时，默认情况下bash会在若干个文件中查找环境变量的设置，这些文件称为系统环境文件。
 * bash检查的环境变量文件的情况取决于系统运行Shell的方式
   * 1）通过系统用户登录后默认运行的Shell
@@ -214,7 +228,9 @@
   * 非登录Shell只会加载`$HOME/.bashrc`(用户环境变量文件)，并会去找`/etc/bashrc`(全局环境变量文件)。
 
 ## 3.普通变量
+
 ### 3.1 定义本地变量
+
 * 本地变量在用户当前Shell生存期的脚本中使用
 * 1.普通变量定义
   * 1）`变量名=value`
@@ -262,6 +278,7 @@
   [root@herhan /]# echo $CMD1
   /
 ```
+
 ```bash
   # 按天打包网站的站点目录程序，生成不同的文件名（此为企业实战案例）
   [root@herhan /]# CMD=$(date +%F)  # 将当前日期（格式为yyyy-mm-dd）赋值给CMD变量
@@ -272,19 +289,20 @@
   [root@herhan /]# echo `date +%F`.tar.gz
   2021-07-04.tar.gz
   [root@herhan ~]# tar zcf etc_$(date +%F).tar.gz /etc # 将时间作为压缩包名打包tar;从成员名中删除开头的“/” tar;
-  tar: Removing leading `/' from member names
+  tar: Removing leading '/'from member names
   [root@herhan ~]# ls     # 打包结果，包名中包含有当前日期
   etc_2021-07-04.tar.gz
   [root@herhan ~]# H=$(uname -n)
   [root@herhan ~]# echo $H
   herhan
   [root@herhan ~]# tar zcf $H.tar.gz /etc/services
-  tar: Removing leading `/' from member names
+  tar: Removing leading '/'from member names
   [root@herhan ~]# ls -l
   total 9724
   -rw-r--r-- 1 root root 9817374 Jul  4 21:59 etc_2021-07-04.tar.gz
   -rw-r--r-- 1 root root  136214 Jul  4 22:08 herhan.tar.gz
 ```
+
 * 3.2 局部（普通）变量定义及赋值的经验小结
   * 常规普通变量定义
     * 若变量内容为连续的数字或字符串，赋值时，变量内容两边可以不加引号；
@@ -299,7 +317,9 @@
     * 在变量名前加`$`可以取得该变量的值，使用echo或printf命令可以显示变量的值，`$A`和`${A}`的写法不同，但效果是一样的；
     * 用echo等命令输出变量的时候，也可以单引号、双引号、反引号；
     * $dbname_tname,当变量后面连接有其他字符的时候，必须给变量加上大括号{}；
+
 ### 3.2 变量定义及变量输出说明
+
 名称|解释
 -|-
 单引号|所见即所得，即输出时会将单引号内的所有内容都原样输出，或者描述为单引号里面看到的是什么就会输出什么，这称为强引用
@@ -406,6 +426,7 @@
   * 3）当变量里的内容需要原样输出时，要用单引号（''）,这样的需求极少
 
 ## 4.变量定义技巧总结
+
 * 可以多学习和模仿操作系统自带的`/etc/init.d/functions`函数库脚本的定义思路，多学习Linux系统脚本中的定义，有经验的读者最终应形成一套适合自己的规范和习惯
   * 1）变量名及变量内容定义小结
     * 变量名只能为字母、数字或下划线，只能以字母或下划线开头。
@@ -417,3 +438,253 @@
   * 3）打印输出及使用变量的知识
     * 打印输出或使用变量时，变量名前要接$符号；变量名后面紧接其他字符的时候，要用大括号将变量部分单独括起来
     * 打印输出或使用变量时，一般加双引号或不加引号；如果是字符串变量，最好加双引号；希望原样输出时使用单引号。
+
+## 5.Shell中特殊且重要的变量
+
+### 5.1 shell中特殊位置参数变量
+
+* 常用的特殊位置参数变量说明
+位置变量|作用说明
+-|-
+`$0`|获取当前执行的Shell脚本的文件名，如果执行脚本包含了路径，那么就包括脚本路径
+`$n`|获取当前执行的Shell脚本的第n个参数值，n=1...9,当n为0时，表示脚本的文件名；如果n大于9，则用大括号括起来，例如${10},接的参数以空格隔开
+`$#`|获取当前执行的Shell脚本后面接的参数的总个数
+`$*`|获取当前Shell脚本所有传参的参数，不加引号和`$@`相同；如果给`$*`加上双引号，例如："$*",则表示将所有的参数视为单个字符串，相当于"$1 $2 $3"
+`$@`|获取当前Shell脚本所有传参的参数，不加引号和`$*`相同；如果给`$@`加上双引号，例如："$@",则表示将所有的参数视为不同的独立字符串，相当于"$1""$2""$3""...".这是将多参数传递给其他程序的最佳方式，因为它会保留所有的内嵌在每个参数里的任何空白。
+
+```bash
+  # $1$2...$9${10}${11}..特殊变量实践
+  # 范例：测试$n(n为1..15)的实践
+  [root@herhan ~]# echo 'echo $1' > p.sh
+  [root@herhan ~]# cat p.sh 
+  echo $1
+  [root@herhan ~]# sh p.sh herhan
+  herhan
+  [root@herhan ~]# sh p.sh herhan tim
+  herhan
+  [root@herhan ~]# sh p.sh "herhan tim"
+  herhan tim
+
+  # 范例：在脚本中同时加入$1和$2
+  [root@herhan ~]# echo 'echo $1 $2' > p.sh
+  [root@herhan ~]# cat p.sh 
+  echo $1 $2
+  [root@herhan ~]# sh p.sh herhan tim
+  herhan tim
+  [root@herhan ~]# sh p.sh "herhan tim" john
+  herhan tim john
+
+  # 范例：设置15个位置参数（$1...$15）,用于接收命令行传递的15个参数
+  [root@herhan ~]# echo \${1..15}
+  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15
+  [root@herhan ~]# echo "echo \${1..15}"
+  echo ${1..15}
+  [root@herhan ~]# echo  \${1..15} > n.sh
+  [root@herhan ~]# cat n.sh 
+  $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15
+  [root@herhan ~]# vim n.sh 
+  [root@herhan ~]# echo {a..z}
+  a b c d e f g h i j k l m n o p q r s t u v w x y z
+  [root@herhan ~]# sh n.sh {a..z}
+  1 b c d e f g h i a0 a1 a2 a3 a4 a5
+  [root@herhan ~]# sh n.sh {a..z}
+  1 b c d e f g h i a0 a1 a2 a3 a4 a5
+  [root@herhan ~]# vim n.sh 
+  [root@herhan ~]# sh n.sh {a..z}
+  a b c d e f g h i j k l m n o
+
+  
+  # $0特殊变量的作用及变量实践
+  # 范例：获取脚本的名称及路径
+  [root@herhan ~]# cat n.sh
+  echo $0
+  [root@herhan ~]# sh n.sh
+  n.sh
+  [root@herhan ~]# sh /root/n.sh 
+  /root/n.sh
+
+  # 范例：dirname及basename命令自身的功能和用法
+  [root@herhan ~]# dirname /root/n.sh   # dirname命令的作用是获取脚本的路径
+  /root
+  [root@herhan ~]# basename /root/n.sh  # basename命令的作用是获取脚本的名字 
+  n.sh
+
+  # 利用$0和上述命令（dirname，basename）分别取出脚本名称和脚本路径
+  [root@herhan ~]# cat n.sh
+  dirname $0
+  basename $0
+  [root@herhan ~]# sh /root/n.sh
+  /root
+  n.sh
+
+  # $#特殊变量获取脚本传参个数的实践
+  # 范例：通过$#获取脚本传参的个数
+  [root@herhan ~]# echo \${1..9} > q.sh
+  [root@herhan ~]# vim q.sh 
+  [root@herhan ~]# cat q.sh
+  echo $1 $2 $3 $4 $5 $6 $7 $8 $9
+  [root@herhan ~]# echo 'echo $#0' >> q.sh
+  [root@herhan ~]# cat q.sh
+  echo $1 $2 $3 $4 $5 $6 $7 $8 $9
+  echo $#0
+  [root@herhan ~]# echo 'echo $#' >> q.sh
+  [root@herhan ~]# vim q.sh 
+  [root@herhan ~]# sh q.sh {a..z}
+  a b c d e f g h i
+  26
+
+  # 范例：根据用户再命令行的传参个数判断用户的输入，不合要求的给予提示并退出
+  [root@herhan ~]# cat t1.sh
+  [ $# -ne 2 ] && {
+          echo "muse two args"
+          exit 1
+  }
+  echo herhan
+  [root@herhan ~]# sh t1.sh
+  muse two args
+  [root@herhan ~]# sh t1.sh herhan
+  muse two args
+  [root@herhan ~]# sh t1.sh herhan tom
+  herhan
+
+  
+  [root@herhan ~]# cat t2.sh
+  if [ $# -ne 2 ];  then
+          echo "USAGE:/bin/sh $0 arg1 arg2"
+          exit 1
+  fi
+  echo $1 $2
+  [root@herhan ~]# vim t2.sh 
+  [root@herhan ~]# sh t2.sh
+  USAGE:/bin/sh t2.sh arg1 arg2
+  [root@herhan ~]# sh t2.sh herhan tom
+  herhan tom
+
+  # $*和$@特殊变量功能及区别说明
+  # 范例：利用set设置位置参数
+  [root@herhan ~]# set -- "I am" handsome oldboy. # “--”表示清除所有的参数变量，重新设置后面的参数变量
+  [root@herhan ~]# echo $#
+  3
+  [root@herhan ~]# echo $1
+  I am
+  [root@herhan ~]# echo $2
+  handsome
+  [root@herhan ~]# echo $3
+  oldboy.
+  # 测试$*和$@,此时不带双引号
+  [root@herhan ~]# echo $*
+  I am handsome oldboy.
+  [root@herhan ~]# echo $@
+  I am handsome oldboy.
+  [root@herhan ~]# for i in $*;do echo $i;done
+  I
+  am
+  handsome
+  oldboy.
+  [root@herhan ~]# for i in $@;do echo $i;done
+  I
+  am
+  handsome
+  oldboy.
+  # 测试"$*"和"$@",此时带有双引号
+  [root@herhan ~]# echo "$*"
+  I am handsome oldboy.
+  [root@herhan ~]# echo "$@"
+  I am handsome oldboy.
+  [root@herhan ~]# for i in "$*";do echo $i;done
+  I am handsome oldboy.
+  [root@herhan ~]# for i in "$@";do echo $i;done
+  I am
+  handsome
+  oldboy.
+  [root@herhan ~]# for i;do echo $i;done
+  I am
+  handsome
+  oldboy.
+  [root@herhan ~]# for i in $*;do echo $i;done
+  I
+  am
+  handsome
+  oldboy.
+  [root@herhan ~]# shift
+  [root@herhan ~]# echo $#
+  2
+  [root@herhan ~]# echo $1
+  handsome
+  [root@herhan ~]# echo $2
+  oldboy.
+```
+
+### 5.2 Shell进程中的特殊状态变量
+* Shell进程的特殊状态变量
+位置变量|作用说明
+-|-
+`$?`|获取执行上一指令的执行状态返回值（0为成功，非零为失败），这个变量最常用
+`$$`|获取当前执行的Shell脚本的进程号（PID），这个变量不常用，了解即可
+`$!`|获取上一个在后台工作的进程的进程号（PID），这个变量不常用，了解即可
+`$_`|获取在此之前执行的命令或脚本的最后一个参数，这个变量不常用，了解即可
+
+* 在企业场景下，“$?”返回值的用法如下：
+  * （1）判断命令、脚本或函数等程序是否执行成功
+  * （2）若在脚本执行“exit 数字”，则会返回这数字个“$?”变量
+  * （3）如果是在函数里，则通过“return 数字”把这个数字以函数返回值的形式传给“$?”.
+```bash
+  # $? 特殊变量功能实践
+
+  ## 执行命令后获取返回值
+  [root@herhan ~]# pwd
+  /root
+  [root@herhan ~]# echo $?
+  0
+  [root@herhan ~]# ls /home/hh
+  ls: cannot access /home/hh: No such file or directory # 提示文件夹不存在
+  [root@herhan ~]# echo $?
+  2
+  [root@herhan ~]# rm -rf /root
+  rm: cannot remove ‘/root’: Device or resource busy # 提示文件被占用
+  [root@herhan ~]# echo $?
+  1
+  [root@herhan ~]# kkk
+  -bash: kkk: command not found   #命令不存在
+  [root@herhan ~]# echo $?
+  127
+
+  ## 根据返回值来判断软件的安装步奏是否成功
+  [root@herhan ~]# wget -c -q http://nginx.org/download/nginx-1.10.1.tar.gz
+  [root@herhan ~]# ls -l
+  total 1520
+  -rw-r--r-- 1 root root 909077 Jun  1  2016 nginx-1.10.1.tar.gz
+  -rw-r--r-- 1 root root 644061 Jul 10 23:53 nginx-1.10.1.tar.gz.1
+  [root@herhan ~]# rm nginx-1.10.1.tar.gz.1 
+  rm: remove regular file ‘nginx-1.10.1.tar.gz.1’? y
+  [root@herhan ~]# tar xf nginx-1.10.1.tar.gz 
+  [root@herhan ~]# cd nginx-1.10.1
+  [root@herhan nginx-1.10.1]# ./configure --prefix=/usr/local/myWorkSpace/nginx1.16 --with-http_stub_status_module --with-http_ssl_module --with-debug
+  [root@herhan nginx-1.10.1]# echo $?
+  0
+  [root@herhan nginx-1.10.1]# make && make install
+  [root@herhan nginx-1.10.1]# echo $?
+  0
+
+  ## 通过获取$?的返回值群定网站备份是否正确
+  [root@herhan ~]# cd /etc/
+  [root@herhan etc]# tar zcf /opt/services.tar.gz ./services 
+  [root@herhan etc]# echo $?
+
+  ## 通过脚本控制命令及脚本执行后的返回值
+    [root@herhan ~]# cat test4.sh 
+    [ $# -ne 2 ] && {
+            echo "must be two args."
+            exit 119
+    }
+    echo herhan
+    [root@herhan ~]# sh test4.sh 
+    must be two args.
+    [root@herhan ~]# echo $?
+    119
+    [root@herhan ~]# sh test4.sh a1 a2
+    herhan
+    [root@herhan ~]# echo $?
+    0
+```
+
