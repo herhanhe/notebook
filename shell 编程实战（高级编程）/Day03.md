@@ -1,6 +1,5 @@
 # `Shell`高级编程 Day03
 
-
 ## 1.什么是Shell变量
 
 ### 1.1 什么是变量
@@ -678,13 +677,373 @@
             exit 119
     }
     echo herhan
-    [root@herhan ~]# sh test4.sh 
-    must be two args.
-    [root@herhan ~]# echo $?
-    119
-    [root@herhan ~]# sh test4.sh a1 a2
-    herhan
-    [root@herhan ~]# echo $?
-    0
+  [root@herhan ~]# sh test4.sh 
+  must be two args.
+  [root@herhan ~]# echo $?
+  119
+  [root@herhan ~]# sh test4.sh a1 a2
+  herhan
+  [root@herhan ~]# echo $?
+  0
+
+
+
+  # $$特殊比变量工能及实践
+  ## 获取脚本执行的进程号（PID）
+  [root@herhan ~]# cat test_pid.sh 
+  echo $$ >/tmp/a.pid
+  sleep 300
+  [root@herhan ~]# ps -ef|grep test_pid|grep -v grep
+  [root@herhan ~]# sh test_pid.sh &
+  [1] 17511
+  [root@herhan ~]# ps -ef|grep test_pid|grep -v grep
+  root     17511 17470  0 13:06 pts/0    00:00:00 sh test_pid.sh
+  [root@herhan ~]# cat /tmp/a.pid 
+  17511
+
+  ## 实现系统中多次执行某一个脚本后的进程只有一个（此为$$的企业级应用）
+  ### 说明：有时执行定时任务脚本的频率比较快，并不知道上一个脚本是否真的执行完毕，但是，业务要求同一时刻只能有一个同样的脚本在运行，此时就可以利用$$获取上一次运行的脚本进程号，当程序重新运行时，根据获得的进程号，清理掉上一次的进程，运行新的脚本命令
+  [root@herhan ~]# cat pid.sh 
+  # !/bin/sh
+  pidpath=/tmp/a.pid
+  if [ -f "$pidpath"] then
+          kill `cat $pidpath` > /dev/null 2>&1
+          rm -f $pidpath
+  fi
+  echo $$ >$pidpath
+  sleep 300
+  [root@herhan ~]# vim pid.sh 
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  [root@herhan ~]# sh pid.sh &
+  [1] 24248
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24248 24187  0 18:01 pts/0    00:00:00 sh pid.sh
+  [root@herhan ~]# sh pid.sh &
+  [2] 24257
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24257 24187  0 18:01 pts/0    00:00:00 sh pid.sh
+  [1]-  Terminated              sh pid.sh
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24257 24187  0 18:01 pts/0    00:00:00 sh pid.sh
+  [root@herhan ~]# sh pid.sh &
+  [3] 24273
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24273 24187  0 18:04 pts/0    00:00:00 sh pid.sh
+  [2]-  Terminated              sh pid.sh
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24273 24187  0 18:04 pts/0    00:00:00 sh pid.sh
+
+
+  # $_特殊变量功能说明及实践
+  ## $_参数的示例
+  [root@herhan ~]# cat 123 321
+  cat: 123: No such file or directory
+  cat: 321: No such file or directory
+  [3]+  Done                    sh pid.sh
+  [root@herhan ~]# echo $_
+  321
+
+
+  # $!特殊变量功能说明及实践
+  ## $!的功能示例
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  [root@herhan ~]# sh pid.sh &
+  [1] 24295
+  [root@herhan ~]# echo $!
+  24295
+  [root@herhan ~]# ps -ef|grep pid.sh|grep -v grep
+  root     24295 24187  0 18:18 pts/0    00:00:00 sh pid.sh
 ```
 
+## 6.bash Shell内置变量命令
+* bash Shell包含一些内置命令。这些内置命令在目录列表里是看不见的，它们由Shell本身提供。
+* 常用的内部命令有：`echo、eval、exec、export、read、shift`
+### 6.1 echo 在屏幕上输出信息
+* 命令格式：`echo args#<==可以是字符串和变量的组合`。
+* 功能说明：将echo命令后面args指定的字符串及变量等显示到标准输出。
+* 常用参数
+
+echo 参数选项|说明
+-|-
+`-n`|不换行输出内容
+`-e`|解析转义字符（见下面的字符）
+转义字符：|
+`\n`|换行
+`\r`|回车
+`\t`|制表符（tab）
+`\b`|退格
+`\v`|纵向制表符
+
+```bash
+  # echo的参数应用实例
+  [root@herhan ~]# echo herhan;echo john
+  herhan
+  john
+  [root@herhan ~]# echo -n herhan;echo john
+  herhanjohn
+  [root@herhan ~]# echo "herhan\tjohn\nherhan\tjohn"
+  herhan\tjohn\nherhan\tjohn
+  [root@herhan ~]# echo -e "herhan\tjohn\nherhan\tjohn"
+  herhan  john
+  herhan  john
+  [root@herhan ~]# printf "herhan\tjohn\nherhan\tjohn\n"
+  herhan  john
+  herhan  john
+  [root@herhan ~]# echo -e "1\b23"
+  23
+  [root@herhan ~]# printf "1\b23\n"
+  23
+```
+
+### 6.2 eval 
+* 命令格式：eval args
+* 功能：当Shell程序执行到eval语句时，Shell读入参数args，并将它们组合成一个新的命令，然后执行
+
+```bash
+  [root@herhan etc]# vim noeval.sh
+  [root@herhan etc]# cat noeval.sh 
+  echo \$$# #<==$#表示传参的个数
+  [root@herhan etc]# sh noeval.sh arg1 arg2
+  $2
+  [root@herhan etc]# vim noeval.sh
+  [root@herhan etc]# cat noeval.sh 
+  eval "echo \$$#"
+  [root@herhan etc]# sh noeval.sh arg1 arg2
+  arg2
+```
+
+### 6.3 exec
+* 命令格式：exec命令参数
+* 功能：exec命令能够在不创建新的子进程的前提下，转去执行指定的命令，当指定的命令执行完毕后，该进程（也就是最初的Shell）就终止了。
+```bash
+  [root@herhan etc]# exec date
+  Wed Jul 14 20:12:54 CST 2021
+
+  SSH   101.200.156.233: session closed
+  Press any key to reconnect
+```
+* 当使用exec打开文件后，read命令每次都会将文件指针移动到文件的下一行进行读取，直到文件末尾，利用这个可以实现处理文件内容。
+```bash
+  # exec的功能示例
+  [root@herhan ~]# seq 5 > /tmp/tmp.log
+  [root@herhan ~]# vim exec.sh
+  [root@herhan ~]# cat exec.sh 
+  exec < /tmp/tmp.log  #<==读取log内容
+  while read line      #<==利用read一行行读取处理
+  do 
+    echo $line        #<==打印输出 
+  done
+  echo ok
+  [root@herhan ~]# sh exec.sh 
+  1
+  2
+  3
+  4
+  5
+  ok 
+```
+
+### 6.4 read
+* 命令格式：read  变量名表
+* 功能：从标准输入读取字符串等信息，传给Shell程序内部定义的变量
+
+### 6.5 shift
+* 命令格式：shift-Shift positional parameters
+* 功能：shift语句会按如下方式重新命名所有的位置参数变量，即`$2`成为`$1`、`$3`成为`$2`等，以此类推，在程序中每使用一次shift语句，都会使所有的位置参数依次向左移动一个位置，并使位置参数`$#`减1，直到减到0为止。
+```bash
+  # shift的功能介绍
+  [root@herhan ~]# help shift
+  shift: shift [n]
+      Shift positional parameters.
+      
+      Rename the positional parameters $N+1,$N+2 ... to $1,$2 ...  If N is
+      not given, it is assumed to be 1.
+      
+      Exit Status:
+      Returns success unless N is negative or greater than $#.
+```
+* shift命令的主要作用将位置参数`$1`、`$2`等进行左移，即如果位置参数是`$3`、`$2`、`$1`,那么执行一次shift后，`$3`就变成了`$2`,`$2`变成了`$1`,`$1`就是消失了。
+```bash
+  [root@herhan ~]# vim n.sh
+  [root@herhan ~]# cat n.sh
+  echo $1 $2
+  if [ $# -eq 2 ];then
+          shift
+          echo $1
+  fi
+  [root@herhan ~]# sh n.sh 1 2
+  1 2
+  2
+```
+
+* 应用场景：当我们写Shell希望像命令行的命令通过参数控制不同的功能时，就会先传一个类似-c的参数，然后再接内容。
+```bash
+  # 系统案例：ssh-copy-id -i /root/.ssh/id_dsa.pub:
+  ID_FILE="${HOME}/.ssh/id_rsa.pub"
+  if [ "-i" = "$1" ];then
+    shift
+    # check if we have 2 parameters left,if so the first is the new ID file
+    if [ -n "$2" ];then
+      if expr "$1" : ".*\.pub" > /dev/null ; then
+        ID_FILE="$1"
+      else
+        ID_FILE="$1.pub"
+      fi
+      shift   # and this should leave $1 as the target name
+    fi
+  fi
+```
+
+### 6.5 exit
+* 命令格式：exit-Exit the shell
+* 功能：退出Shell程序。在exit之后可以有选择地指定一个数位作为返回状态
+
+## 7.Shell变量子串知识及实践
+### 7.1 Shell变量子串介绍
+
+ID|表达式|说明
+-|-|-
+1|`${parameter}`|返回变量$parameter的内容
+2|`${#parameter}`|返回变量$parameter内容的长度（按字符），也适用于特殊变量
+3|`${parameter:offset}`|在变量${parameter}中，从位置offset之后开始提取子串到结尾
+4|`${parameter:offset:length}`|在变量${parameter}中，从位置offset之后开始提取长度为length的子串
+5|`${parameter#word}`|从变量${parameter}开头开始删除最短区配的word子串
+6|`${parameter##word}`|从变量${parameter}开头开始删除最长匹配的word子串
+7|`${parameter%word}`|从变量${parameter}结尾开始删除最短匹配的word子串
+8|`${parameter%%word}`|从变量${parameter}结尾开始删除最长匹配的word子串
+9|`${parameter/pattern/string}`|使用string代替第一个匹配的pattern
+10|`${parameter/pattern/string}`|使用string代替所有匹配的pattern
+
+### 7.2 Shell变量子串的实践
+```bash
+  # 注备：定义HERHAN变量，赋值内容"I am herhan",操作代码如下：
+  [root@herhan ~]# HERHAN="I am herhan"
+  [root@herhan ~]# echo ${HERHAN}
+  I am herhan
+  [root@herhan ~]# echo $HERHAN
+  I am herhan
+
+  # 返回HERHAN变量值的长度
+  ## 通过在变量名前加#，就可以打印变量值的长度：
+  [root@herhan ~]# echo ${#HERHAN}
+  11
+  ## Shell的其他打印量长度的方法
+  [root@herhan ~]# echo $HERHAN|wc -L     #<==输出变量值，然后通过管道交给wc计算长度。
+  11
+  [root@herhan ~]# expr length "$HERHAN"  #<==利用expr的length函数计算变量长度
+  11
+  [root@herhan ~]# echo "$HERHAN"|awk '{print length($0)}'  #<==利用awk的length函数计算变量长度，也可无"$0"这几个字符
+  11
+
+  # 利用time命令及for循环对几种获取字符串长度的方法进行性能比较
+  ## (1)变量自带的获取长度的方法（echo ${#char}）
+   [root@herhan ~]# time for n in {1..10000};do char=`seq -s "herhan" 100`;echo ${#char} &>/dev/null;done
+
+  real    0m10.671s
+  user    0m4.555s
+  sys     0m5.412s
+  ## (2)利用管道加wc的方法（echo ${char}|wc -L）
+  [root@herhan ~]# time for n in {1..10000};do char=`seq -s "herhan" 100`;echo ${char}|wc -L &>/dev/null;done
+
+  real    0m41.681s
+  user    0m16.461s
+  sys     0m22.732s
+  ## (3)利用expr自带的length方法（expr length"${char}"）
+  [root@herhan ~]# time for n in {1..10000};do char=`seq -s "herhan" 100`;expr length "${char}" &>/dev/null;done
+
+  real    0m20.947s
+  user    0m9.522s
+  sys     0m9.957s
+  ## (4)利用awk自带的length函数方法
+  [root@herhan ~]# time for n in {1..10000};do char=`seq -s "herhan" 100`;echo $char|awk '{print length($0)}' &>/dev/null;done
+
+  real    0m34.515s
+  user    0m13.990s
+  sys     0m18.146s
+```
+
+* 可以看到，这几种方法的速度相差几十到上百倍，一般情况下调用外部命令来处理的方式与使用内置操作的速度相差较大。在Shell编程中，应尽量使用内置操做或函数来完成。
+* 有关获取字符串长度的几种统计方法的性能比较如下：
+  * 变量自带的计算长度的方法的效率最高，在要求效率的场景中尽量多用。
+  * 使用管道统计的方法的效率都比较差，在要求效率的场景中尽量不用。
+  * 对于日常简单的脚本计算，读者可以根据自己所擅长的或易用的程度区选择
+
+```bash
+  # 关于计算字符串的长度，有一个企业面试案例，面试题目如下：
+  # 请编写Shell脚本以打印下面语句中字符数小于6的单词
+  # I am herhan linux，welcome to our training.
+  #! /bin/bash
+  a=1
+  while [ $a -le $# ]
+  do
+          char=$(eval "echo \$$a")
+          # echo $char    
+          if [ ${#char} -lt 6 ];then
+                  echo $char
+          fi
+          let a++
+  done
+```
+
+```bash
+  # 截取HERHAN变量的内容，从第2个字符之后开始截取，默认截取后面字符的全部。第2个字符不包含在内，也可以理解为删除前面的多个字符
+  [root@herhan ~]# echo ${HERHAN}
+  I am herhan
+  [root@herhan ~]# echo ${HERHAN:2}
+  am herhan
+  # 截取HERHAN变量的内容，从第2个字符之后开始截取，截取2个字符
+  [root@herhan ~]# echo ${HERHAN:2:2}
+  am
+  [root@herhan ~]# echo ${HERHAN}|cut -c 3-4
+  am
+  # 从变量$HERHAN内容的开头开始删除最短匹配“a*C”及“a*c”的子串
+  [root@herhan ~]# HERHAN=abcABC123ABCabc
+  [root@herhan ~]# echo $HERHAN
+  abcABC123ABCabc
+  [root@herhan ~]# echo ${HERHAN#a*C}
+  123ABCabc
+  [root@herhan ~]# echo ${HERHAN#a*c}
+  ABC123ABCabc
+  # 从变量$HERHAN内容的开头开始删除最长匹配“a*C”及“a*c”的子串
+  [root@herhan ~]# echo ${HERHAN##a*C}
+  abc
+  # 从变量$HERHAN内容的尾部开始删除最短匹配“a*C”及“a*c”的子串
+  [root@herhan ~]# echo ${HERHAN%a*C}
+  abcABC123ABCabc
+  [root@herhan ~]# echo ${HERHAN%a*c}
+  abcABC123ABC
+  # 从变量$HERHAN内容的尾部开始删除最长匹配“a*C”及“a*c”的子串
+  [root@herhan ~]# echo ${HERHAN%%a*C}
+  abcABC123ABCabc
+  [root@herhan ~]# echo ${HERHAN%%a*c}
+
+```
+* 有关上述匹配删除的小结：
+  * `#`表示从开头删除匹配最短
+  * `##`表示从开头删除匹配最长
+  * `%`表示从结尾删除匹配最短
+  * `%%`表示从结尾删除匹配最长
+  * `a*c`表示匹配的字符串，`*`表示匹配所有，`a*c`匹配开头为`a`、中间为任意多个字符、结尾为`c`的字符串
+  * `a*C`表示匹配的字符串，`*`表示匹配所有，`a*C`匹配开头为`a`、中间为任意多个字符、结尾为`C`的字符串
+
+```bash
+  # 使用herhan字符串代替变量$HERHAN匹配的john字符串
+  [root@herhan ~]# HERHAN="I am john,yes,john"
+  [root@herhan ~]# echo $HERHAN
+  I am john,yes,john
+  [root@herhan ~]# echo ${HERHAN/john/herhan}
+  I am herhan,yes,john
+  [root@herhan ~]# echo ${HERHAN//john/herhan}
+  I am herhan,yes,herhan
+```
+
+* 有关替换的小结：
+  * 一个`/`表示替换匹配的第一个字符串
+  * 两个`/`表示替换匹配的所有字符串
+
+### 7.3 变量子串的生产场景应用案例
+
+```bash
+  # 去掉下面所有文件的文件名中断的"_finished"字符串
+  
+```
