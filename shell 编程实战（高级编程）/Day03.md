@@ -1045,5 +1045,156 @@ ID|表达式|说明
 
 ```bash
   # 去掉下面所有文件的文件名中断的"_finished"字符串
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_1_finished.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_2_finished.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_3_finished.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_4_finished.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_5_finished.jpg
   
+  ## 方法1：shell脚本for循环结合sed实现
+  [root@herhan ~]# cat herhan_modi_file.sh 
+  #! /bin/bash
+  for file in `ls ./*.jpg`
+  do 
+          mv $file `echo $file|sed 's/_finished//g'`
+  done
+  [root@herhan ~]# ls -l
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_1.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_2.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_3.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_4.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_5.jpg
+
+  ## 方法2：shell脚本for循环加变量的部分截取方法
+  [root@herhan ~]# cat herhan_change_file.sh 
+  #! /bin/bash
+  for file in `ls ./*.jpg`
+  do
+          mv $file `echo "${file%_finished*}.jpg"`
+  done
+  [root@herhan ~]# ls -l
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_1.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_2.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_3.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_4.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:18 stu_102999_5.jpg
+
+  ## 方法3：ls结合awk实现
+  [root@herhan ~]# ls | awk -F '_finished' '{print $0}'
+  stu_102999_1_finished.jpg
+  stu_102999_2_finished.jpg
+  stu_102999_3_finished.jpg
+  stu_102999_4_finished.jpg
+  stu_102999_5_finished.jpg
+  [root@herhan ~]# ls | awk -F '_finished' '{print $1}'
+  stu_102999_1
+  stu_102999_2
+  stu_102999_3
+  stu_102999_4
+  stu_102999_5
+  [root@herhan ~]# ls | awk -F '_finished' '{print $2}'
+  .jpg
+  .jpg
+  .jpg
+  .jpg
+  .jpg
+  [root@herhan ~]# ls | awk -F '_finished' '{print $1$2}'
+  stu_102999_1.jpg
+  stu_102999_2.jpg
+  stu_102999_3.jpg
+  stu_102999_4.jpg
+  stu_102999_5.jpg
+  [root@herhan ~]# ls | awk -F '_finished' '{print "mv "$0" "$1$2" "}'|/bin/bash
+  [root@herhan ~]# ls -l
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_1.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_2.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_3.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_4.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_5.jpg
+  
+  ##  方法4：通过专业的改名命令rename实现
+  [root@herhan ~]# rename "_finished" "" *
+  [root@herhan ~]# ls -l
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_1.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_2.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_3.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_4.jpg
+  -rw-r--r-- 1 root root      0 Jul 16 17:33 stu_102999_5.jpg
+  [root@herhan ~]# rename .jpg .herhan *
+  -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_1.herhan
+  -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_2.herhan
+  -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_3.herhan
+  -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_4.herhan
+  -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_5.herhan
 ```
+
+## 8.Shell特殊扩展变量的知识与实践
+### 8.1 shell特殊扩展变量介绍
+
+表达式|说明
+-|-
+`${parameter:-word}`|如果parameter的变量值为空或未赋值，则会返回word字符串并替代变量的值；用途：如果变量未定义，则返回备用的值，防止变量未空值或因未定义而导致异常。
+`${parameter:=word}`|如果parameter的变量值为空或未赋值，则设置这个变量值为word，并返回其值；用途：基本同上一个${parameter:-word},但该变量又额外给parameter变量赋值了。
+`${parameter:?word}`|如果parameter变量值为空或未赋值，那么word字符串将被作为标准错误输出，否则输出变量的值；用途用于捕捉由于变量未定义导致的错误，并退出程序
+`${parameter:+word}`|如果parameter变量值为空或未赋值，则什么都不做，否则word字符串将替代变量的值
+
+### 8.2 shell特殊扩展变量的实践
+
+```bash
+  # 范例：${parameter:-word}用法功能示例
+  [root@backup ~]# echo $test
+
+  [root@backup ~]# result=${test:-UNSET}
+  [root@backup ~]# echo $result 
+  UNSET
+  [root@backup ~]# echo ${test}  # 注意，此时打印test变量还是为空
+  [root@backup ~]# test=herhan
+  [root@backup ~]# result=${test:-UNSET}
+  [root@backup ~]# echo $result 
+  herhan
+
+  # 范例：${parameter:=word}用法功能示例
+  [root@backup ~]# unset result 
+  [root@backup ~]# echo $result 
+
+  [root@backup ~]# unset test 
+  [root@backup ~]# echo $test
+
+  [root@backup ~]# result=${test:=UNSET}
+  [root@backup ~]# echo $result 
+  UNSET
+  [root@backup ~]# echo $test
+  UNSET
+
+  # 范例：${parameter:?word}功能实践
+  [root@backup ~]# echo ${key?not defined}
+  -bash: key: not defined
+  [root@backup ~]# echo ${key:?not defined}
+  -bash: key: not defined
+  [root@backup ~]# key=1
+  [root@backup ~]# echo ${key:?not defined}
+  1
+  [root@backup ~]# echo ${key?not defined}
+  1
+
+  # 范例：${parameter:+word}功能实践
+  [root@backup ~]# herhan=${john:+word}
+  [root@backup ~]# echo $herhan
+
+  [root@backup ~]# john=19
+  [root@backup ~]# herhan=${john:+word}
+  [root@backup ~]# echo $herhan
+  word
+```
+### 8.3 Shell特殊扩展变量的生产场景应用案例
+
+```bash
+  # 范例：删除7天前的过期数据备份
+  [root@backup ~]£ cat del.sh
+  find ${path-/tmp} -name "*.tar.gz" -type f -mtime +7|xargs rm -f
+  [root@backup ~]£ sh -x del.sh 
+  + xargs rm -f
+  + find /tmp -name '*.tar.gz' -type f -mtime +7
+```
+
+## 9.变量的数值计算实践
