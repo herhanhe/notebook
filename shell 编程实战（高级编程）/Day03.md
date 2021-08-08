@@ -1198,3 +1198,211 @@ ID|表达式|说明
 ```
 
 ## 9.变量的数值计算实践
+### 9.1 算术运算符
+* Shell中常见的算术运算符号
+
+算术运算符|意义（*表示常用）
+-|-
+`+、-`|加法（或正号）、减法（或负号）*
+`*、/、%`|乘法、除法、取余（取模）*
+`**`|幂运算*
+`++、--`|增加及减少，可前置也可放在变量结尾*
+`!、&&、||`|逻辑非（取反）、逻辑与（and）、逻辑或（or）*
+`<、<=、>、>=`|比较符号（小于、小于等于、大于、大于等于）
+`==、!=、=`|比较符号（相等、不相等、对于字符串“=”也可以表示相当于）*
+`<<、>>`|向左移位、向右移位
+`~、|、&、^`|按位取反、按位异或、按位与、按位或
+`=、+=、-=、*=、/=、%=`|赋值运算符，例如a+=1相当于a=a+1,a-=1相当于a=a-1*
+
+* Shell中常见的算术运算命令
+
+运算操作符与运算命令|意义
+-|-
+`(())`|用于整数运算的常用运算符，效率很高
+`let`|用于整数运算，类似于"(())"
+`expr`|可用于整数运算，但还是很多其他的额外功能
+`bc`|Linux下的一个计算器程序（适合整数及小数运算）
+`$[]`|用于整数运算
+`awk`|awk既可以用于整数运算，也可以用于小数运算
+`declare`|定义变量值和属性，-i参数可以用于定义整形变量，做运算
+
+### 9.2 双小括号"(())"数值运算命令
+* 双小括号"(())"数值运算的基础语法
+
+运算操作符与运算命令|意义
+-|-
+`((i=i+1))`|此种书写方法为运算后负值法，即将i+1的运算结果赋值给变量i。注意，不用"echo((i+1))"的形式输出表达式的值，但可以用echo$((i=i+1))输出其值
+`i=$((i+1))`|可以在"(())"前加$符，表示将表达式运算后赋值给i
+`((8>7&&5==5))`|可以进行比较操作，还可以加入逻辑与和逻辑或，用于条件判断
+`echo $((2+1))`|需要直接输出运算表达式的运算结果时，可以在"(())"前加$符
+
+
+
+* 范例
+```bash
+  # 范例：利用"(())"进行简单的数值计算
+  [root@backup ~]# echo $((1+1))
+  2
+  [root@backup ~]# echo $((6-3))
+  3
+  [root@backup ~]# ((i=5))
+  [root@backup ~]# ((i=i*2))
+  [root@backup ~]# echo $i
+  10
+
+  # 范例：利用"(())"进行稍微复杂一些的综合算术运算
+  [root@backup ~]# ((a=1+2**3-4%3))
+  [root@backup ~]# echo $a
+  8
+  [root@backup ~]# b=$((a=1+2**3-4%3))
+  [root@backup ~]# echo $b
+  8
+  [root@backup ~]# echo $((a=1+2**3-4%3))
+  8
+  [root@backup ~]# a=$((100*(100+1)/2))
+  [root@backup ~]# echo $a
+  5050
+  [root@backup ~]# echo $((100*(100+1)/2))
+  5050
+
+  # 范例：特殊运算符号的运算小示例
+  [root@backup ~]# a=8
+  [root@backup ~]# echo $((a=a+1))
+  9
+  [root@backup ~]# echo $((a+=1))
+  10
+  [root@backup ~]# echo $((a**2))
+  100
+
+  # 范例：利用"(())"双括号进行比较及判断
+  [root@backup ~]# echo $((3<8))
+  1
+  [root@backup ~]# echo $((8<3))
+  0
+  [root@backup ~]# echo $((8==8))
+  1
+  [root@backup ~]# if ((8>7&&5==5))
+  > then
+  > echo yes
+  > fi
+  yes
+  # 提示：上面涉及的数字及变量必须为整数（整型），不能是小数（浮点数）或字符串。后面的bc和awk命令可以用于进行小数（浮点数）运算，但一般用到的较少
+
+  # 范例：在变量前后使用--和++特殊运算符的表达式
+  [root@backup ~]# a=10
+  [root@backup ~]# echo $((a++))
+  10
+  [root@backup ~]# echo $a
+  11
+  [root@backup ~]# echo $((a--))
+  11
+  [root@backup ~]# echo $a
+  10
+  [root@backup ~]# a=10
+  [root@backup ~]# echo $a
+  10
+  [root@backup ~]# echo $((--a))
+  9
+  [root@backup ~]# echo $a
+  9
+  [root@backup ~]# echo $((++a))
+  10
+  [root@backup ~]# echo $a
+  10
+  # 提示：有关++、--运算的记忆方法：
+  # 变量a在运算符之前，输出表达式的值为a，然后a自增或自减；变量a在运算符之后，输出表达式会先自增或自减，表达式的值就是自增或自减后a的值。
+
+  # 范例：通过"(())"运算后赋值给变量
+  [root@backup ~]# myvar=99
+  [root@backup ~]# echo $((myvar+1))
+  100
+  [root@backup ~]# echo $((   myvar + 1  ))
+  100
+  [root@backup ~]# myvar=$((myvar+1))
+  [root@backup ~]# echo $myvar
+  100
+  # 提示：在"(())"中使用变量时可以去掉变量前的$符号
+
+  # 范例：包含"(())"的各种常见运算符命令行的执行示例
+  [root@backup ~]# echo $((6+2))
+  8
+  [root@backup ~]# echo $((622))
+  622
+  [root@backup ~]# echo $((6-2))
+  4
+  [root@backup ~]# echo $((6*2))
+  12
+  [root@backup ~]# echo $((6/2))
+  3
+  [root@backup ~]# echo $((6%2))
+  0
+  [root@backup ~]# echo $((6**2))
+  36
+
+  # 范例：各种"(())"运算的Shell脚本示例
+  [root@backup ~]# cat test.sh
+  a=6
+  b=2
+  echo "a-b=$(($a-$b))"
+  echo "a+b=$(($a+$b))"
+  echo "a*b=$(($a*$b))"
+  echo "a/b=$(($a/$b))"
+  echo "a**b=$(($a**$b))"
+  echo "a%b=$(($a%$b))"
+  [root@backup ~]# sh test.sh
+  a-b=4
+  a+b=8
+  a*b=12
+  a/b=3
+  a**b=36
+  a%b=0
+
+  # 范例：把上面的a、b两个变量通过命令行脚本传参，以实现混合运算脚本的功能
+  [root@backup ~]# cat test.sh 
+  a=$1
+  b=$2
+  echo "a-b=$(($a-$b))"
+  echo "a+b=$(($a+$b))"
+  echo "a*b=$(($a*$b))"
+  echo "a/b=$(($a/$b))"
+  echo "a**b=$(($a**$b))"
+  echo "a%b=$(($a%$b))"
+  [root@backup ~]# sh test.sh 6 3
+  a-b=3
+  a+b=9
+  a*b=18
+  a/b=2
+  a**b=216
+  a%b=0
+  [root@backup ~]# sh test.sh 10 6
+  a-b=4
+  a+b=16
+  a*b=60
+  a/b=1
+  a**b=1000000
+  a%b=4
+
+  # 范例：实现输入2个数进行加、减、乘、除功能的计算器
+  [root@backup ~]# cat 05_10_jisuan.sh 
+  #!/bin/bash
+  # add,subtract,multiply and divide 
+  print_usage(){
+          printf "Please enter an intger\n"
+          exit 1
+  }
+  read -p "Please input first number: " firstnum
+  if [ -n "`echo $firstnum|sed 's/[0-9]//g'`" ];then
+          print_usage
+  fi
+  read -p "Please input the operaters: " operators
+  if [ "${operators}" != "+" ] && [ "${operators}" != "-" ] && [ "${operators}" != "*" ] && [ "${operators}" != "/" ];then
+          echo "please use {+|-|*|/}"
+          echo $operators
+          exit 2
+  fi
+  read -p "Please input second number: " secondnum
+  if [ -n "`echo $secondnum|sed 's/[0-9]//g'`" ];then
+          print_usage
+  fi
+  echo "${firstnum}${operators}${secondnum}=$((${firstnum}${operators}${secondnum}))"
+```
