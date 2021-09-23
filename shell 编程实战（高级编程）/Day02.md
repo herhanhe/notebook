@@ -6,11 +6,11 @@
  * @Description: In User Settings Edit
  * @FilePath: \github\shell 编程实战（高级编程）\Day02.md
 --> 
-# `Shell`高级编程 Day02
+# `Shell`高级编程 Day02 —— Shell脚本初步入门
 
 <!-- TOC -->
 
-- [`Shell`高级编程 Day02](#shell高级编程-day02)
+- [`Shell`高级编程 Day02 —— Shell脚本初步入门](#shell高级编程-day02--shell脚本初步入门)
   - [1.`shell`](#1shell)
   - [2.`shell` 脚本](#2shell-脚本)
   - [3.`shell`脚本在运维工作中的作用地位](#3shell脚本在运维工作中的作用地位)
