@@ -1,8 +1,57 @@
-# `Shell`高级编程 Day03
+<!-- vscode-markdown-toc -->
+* 1. [1.什么是Shell变量](#Shell)
+	* 1.1. [1.1 什么是变量](#)
+	* 1.2. [1.2 Shell变量的特性](#Shell-1)
+	* 1.3. [1.3 变量类型](#-1)
+* 2. [2.环境变量](#-1)
+	* 2.1. [2.1 自定义环境变量](#-1)
+	* 2.2. [2.2 显示与取消环境变量](#-1)
+	* 2.3. [2.3 环境变量知识小结](#-1)
+	* 2.4. [2.4 环境变量初始化与对应文件的生效顺序](#-1)
+* 3. [3.普通变量](#-1)
+	* 3.1. [3.1 定义本地变量](#-1)
+	* 3.2. [3.2 变量定义及变量输出说明](#-1)
+* 4. [4.变量定义技巧总结](#-1)
+* 5. [5.Shell中特殊且重要的变量](#Shell-1)
+	* 5.1. [5.1 shell中特殊位置参数变量](#shell)
+	* 5.2. [5.2 Shell进程中的特殊状态变量](#Shell-1)
+* 6. [6.bash Shell内置变量命令](#bashShell)
+	* 6.1. [6.1 echo 在屏幕上输出信息](#echo)
+	* 6.2. [6.2 eval](#eval)
+	* 6.3. [6.3 exec](#exec)
+	* 6.4. [6.4 read](#read)
+	* 6.5. [6.5 shift](#shift)
+	* 6.6. [6.5 exit](#exit)
+* 7. [7.Shell变量子串知识及实践](#Shell-1)
+	* 7.1. [7.1 Shell变量子串介绍](#Shell-1)
+	* 7.2. [7.2 Shell变量子串的实践](#Shell-1)
+	* 7.3. [7.3 变量子串的生产场景应用案例](#-1)
+* 8. [8.Shell特殊扩展变量的知识与实践](#Shell-1)
+	* 8.1. [8.1 shell特殊扩展变量介绍](#shell-1)
+	* 8.2. [8.2 shell特殊扩展变量的实践](#shell-1)
+	* 8.3. [8.3 Shell特殊扩展变量的生产场景应用案例](#Shell-1)
+* 9. [9.变量的数值计算实践](#-1)
+	* 9.1. [9.1 算术运算符](#-1)
+	* 9.2. [9.2 双小括号"(())"数值运算命令](#-1)
+	* 9.3. [9.3 let运算命令的用法](#let)
+	* 9.4. [9.4 expr命令的用法](#expr)
+	* 9.5. [9.5 bc命令的用法](#bc)
+	* 9.6. [9.6 awk实现计算](#awk)
+	* 9.7. [9.7 declare(同typeset)命令用法](#declaretypeset)
+	* 9.8. [$[]符号的运算示例](#-1)
+* 10. [10 基于Shell变量输入read命令的运算实践](#Shellread)
+	* 10.1. [10.1 read命令基础](#read-1)
+	* 10.2. [10.2 以read命令读入及传参的综合企业案例](#read-1)
 
-## 1.什么是Shell变量
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc --># `Shell`高级编程 Day03
 
-### 1.1 什么是变量
+##  1. <a name='Shell'></a>1.什么是Shell变量
+
+###  1.1. <a name=''></a>1.1 什么是变量
 
 * 变量就是用一个固定的字符串代替更多、更复杂的内容，该内容里可能还会包含变量、路径、字符串等其他的内容。
 * 变量是暂时存储数据的地方及数据标记，所存储的数据存在于内存空间中，通过正确地调用内存空间中变量的名字就可以取出与变量对应的数据。
@@ -14,18 +63,18 @@
   ```
   * 变量的赋值方式为：先写变量名称，紧接着是“=”这个字符，最后是值，**中间无任何空格**。
 
-### 1.2 Shell变量的特性
+###  1.2. <a name='Shell-1'></a>1.2 Shell变量的特性
 
 * 默认情况下，在Bash Shell中是不会区分变量类型的
 * 可以使用declare显示定义变量的类型，但在一般情况下没有这个需求。
 
-### 1.3 变量类型
+###  1.3. <a name='-1'></a>1.3 变量类型
 
 * 分为两类：环境变量（全局变量）和普通变量（局部变量）
 * 环境变量也可称为全局变量，可以在创建它们的Shell及其派生出来的任意子进程Shell中使用，环境变量又可分为自定义环境变量和bash内置的环境变量
 * 普通变量也可称为局部变量，只能在创建它们的Shell函数或Shell脚本中使用。普通变量一般由开发者在开发脚本程序时创建。
 
-## 2.环境变量
+##  2. <a name='-1'></a>2.环境变量
 
 * 环境变量一般是指用export内置命令导出的变量，用于定义Shell的运行环境，保证Shell命令的正确执行
 * 环境变量在用户退出命令行时会丢失
@@ -112,7 +161,7 @@
     ignoreeof       off
   ```
 
-### 2.1 自定义环境变量
+###  2.1. <a name='-1'></a>2.1 自定义环境变量
 
 * 1.设置环境变量
   * export命令和declare命令
@@ -140,7 +189,7 @@
     * （1）在`/etc/motd`里增加提示的字符串
     * （2）在`/etc/profile.d/`下面增加脚本
 
-### 2.2 显示与取消环境变量
+###  2.2. <a name='-1'></a>2.2 显示与取消环境变量
 
 * 1.通过`echo`或`printf`命令打印环境变量
   * 常见的系统环境变量
@@ -203,7 +252,7 @@
   
   ```
 
-### 2.3 环境变量知识小结
+###  2.3. <a name='-1'></a>2.3 环境变量知识小结
 
 * 变量名通常要大写
 * 变量可以在自身的Shell及子Shell中使用
@@ -213,7 +262,7 @@
 * 书写crond定时任务时要注意，脚本要用到的环境变量最好先在所执行的Shell脚本中重新定义
 * 如果希望环境变量永久生效，则可以将其放在用户环境变量文件或全局变量文件里
 
-### 2.4 环境变量初始化与对应文件的生效顺序
+###  2.4. <a name='-1'></a>2.4 环境变量初始化与对应文件的生效顺序
 
 
 * 系统环境文件：在登录Linux系统并启动一个bash shell时，默认情况下bash会在若干个文件中查找环境变量的设置，这些文件称为系统环境文件。
@@ -226,9 +275,9 @@
 * 第二种方式下的Shell加载环境变量的顺序
   * 非登录Shell只会加载`$HOME/.bashrc`(用户环境变量文件)，并会去找`/etc/bashrc`(全局环境变量文件)。
 
-## 3.普通变量
+##  3. <a name='-1'></a>3.普通变量
 
-### 3.1 定义本地变量
+###  3.1. <a name='-1'></a>3.1 定义本地变量
 
 * 本地变量在用户当前Shell生存期的脚本中使用
 * 1.普通变量定义
@@ -317,7 +366,7 @@
     * 用echo等命令输出变量的时候，也可以单引号、双引号、反引号；
     * $dbname_tname,当变量后面连接有其他字符的时候，必须给变量加上大括号{}；
 
-### 3.2 变量定义及变量输出说明
+###  3.2. <a name='-1'></a>3.2 变量定义及变量输出说明
 
 名称|解释
 -|-
@@ -424,7 +473,7 @@
   * 2）没有特殊情况时，字符串一律用双引号定义赋值，特别是多个字符串中间有空格时
   * 3）当变量里的内容需要原样输出时，要用单引号（''）,这样的需求极少
 
-## 4.变量定义技巧总结
+##  4. <a name='-1'></a>4.变量定义技巧总结
 
 * 可以多学习和模仿操作系统自带的`/etc/init.d/functions`函数库脚本的定义思路，多学习Linux系统脚本中的定义，有经验的读者最终应形成一套适合自己的规范和习惯
   * 1）变量名及变量内容定义小结
@@ -438,9 +487,9 @@
     * 打印输出或使用变量时，变量名前要接$符号；变量名后面紧接其他字符的时候，要用大括号将变量部分单独括起来
     * 打印输出或使用变量时，一般加双引号或不加引号；如果是字符串变量，最好加双引号；希望原样输出时使用单引号。
 
-## 5.Shell中特殊且重要的变量
+##  5. <a name='Shell-1'></a>5.Shell中特殊且重要的变量
 
-### 5.1 shell中特殊位置参数变量
+###  5.1. <a name='shell'></a>5.1 shell中特殊位置参数变量
 
 * 常用的特殊位置参数变量说明
 位置变量|作用说明
@@ -614,7 +663,7 @@
   oldboy.
 ```
 
-### 5.2 Shell进程中的特殊状态变量
+###  5.2. <a name='Shell-1'></a>5.2 Shell进程中的特殊状态变量
 * Shell进程的特殊状态变量
 位置变量|作用说明
 -|-
@@ -755,10 +804,10 @@
   root     24295 24187  0 18:18 pts/0    00:00:00 sh pid.sh
 ```
 
-## 6.bash Shell内置变量命令
+##  6. <a name='bashShell'></a>6.bash Shell内置变量命令
 * bash Shell包含一些内置命令。这些内置命令在目录列表里是看不见的，它们由Shell本身提供。
 * 常用的内部命令有：`echo、eval、exec、export、read、shift`
-### 6.1 echo 在屏幕上输出信息
+###  6.1. <a name='echo'></a>6.1 echo 在屏幕上输出信息
 * 命令格式：`echo args#<==可以是字符串和变量的组合`。
 * 功能说明：将echo命令后面args指定的字符串及变量等显示到标准输出。
 * 常用参数
@@ -795,7 +844,7 @@ echo 参数选项|说明
   23
 ```
 
-### 6.2 eval 
+###  6.2. <a name='eval'></a>6.2 eval 
 * 命令格式：eval args
 * 功能：当Shell程序执行到eval语句时，Shell读入参数args，并将它们组合成一个新的命令，然后执行
 
@@ -812,7 +861,7 @@ echo 参数选项|说明
   arg2
 ```
 
-### 6.3 exec
+###  6.3. <a name='exec'></a>6.3 exec
 * 命令格式：exec命令参数
 * 功能：exec命令能够在不创建新的子进程的前提下，转去执行指定的命令，当指定的命令执行完毕后，该进程（也就是最初的Shell）就终止了。
 ```bash
@@ -843,11 +892,11 @@ echo 参数选项|说明
   ok 
 ```
 
-### 6.4 read
+###  6.4. <a name='read'></a>6.4 read
 * 命令格式：read  变量名表
 * 功能：从标准输入读取字符串等信息，传给Shell程序内部定义的变量
 
-### 6.5 shift
+###  6.5. <a name='shift'></a>6.5 shift
 * 命令格式：shift-Shift positional parameters
 * 功能：shift语句会按如下方式重新命名所有的位置参数变量，即`$2`成为`$1`、`$3`成为`$2`等，以此类推，在程序中每使用一次shift语句，都会使所有的位置参数依次向左移动一个位置，并使位置参数`$#`减1，直到减到0为止。
 ```bash
@@ -894,12 +943,12 @@ echo 参数选项|说明
   fi
 ```
 
-### 6.5 exit
+###  6.6. <a name='exit'></a>6.5 exit
 * 命令格式：exit-Exit the shell
 * 功能：退出Shell程序。在exit之后可以有选择地指定一个数位作为返回状态
 
-## 7.Shell变量子串知识及实践
-### 7.1 Shell变量子串介绍
+##  7. <a name='Shell-1'></a>7.Shell变量子串知识及实践
+###  7.1. <a name='Shell-1'></a>7.1 Shell变量子串介绍
 
 ID|表达式|说明
 -|-|-
@@ -914,7 +963,7 @@ ID|表达式|说明
 9|`${parameter/pattern/string}`|使用string代替第一个匹配的pattern
 10|`${parameter/pattern/string}`|使用string代替所有匹配的pattern
 
-### 7.2 Shell变量子串的实践
+###  7.2. <a name='Shell-1'></a>7.2 Shell变量子串的实践
 ```bash
   # 注备：定义HERHAN变量，赋值内容"I am herhan",操作代码如下：
   [root@herhan ~]# HERHAN="I am herhan"
@@ -1041,7 +1090,7 @@ ID|表达式|说明
   * 一个`/`表示替换匹配的第一个字符串
   * 两个`/`表示替换匹配的所有字符串
 
-### 7.3 变量子串的生产场景应用案例
+###  7.3. <a name='-1'></a>7.3 变量子串的生产场景应用案例
 
 ```bash
   # 去掉下面所有文件的文件名中断的"_finished"字符串
@@ -1128,8 +1177,8 @@ ID|表达式|说明
   -rw-r--r-- 1 root root      0 Jul 16 17:41 stu_102999_5.herhan
 ```
 
-## 8.Shell特殊扩展变量的知识与实践
-### 8.1 shell特殊扩展变量介绍
+##  8. <a name='Shell-1'></a>8.Shell特殊扩展变量的知识与实践
+###  8.1. <a name='shell-1'></a>8.1 shell特殊扩展变量介绍
 
 表达式|说明
 -|-
@@ -1138,7 +1187,7 @@ ID|表达式|说明
 `${parameter:?word}`|如果parameter变量值为空或未赋值，那么word字符串将被作为标准错误输出，否则输出变量的值；用途用于捕捉由于变量未定义导致的错误，并退出程序
 `${parameter:+word}`|如果parameter变量值为空或未赋值，则什么都不做，否则word字符串将替代变量的值
 
-### 8.2 shell特殊扩展变量的实践
+###  8.2. <a name='shell-1'></a>8.2 shell特殊扩展变量的实践
 
 ```bash
   # 范例：${parameter:-word}用法功能示例
@@ -1186,7 +1235,7 @@ ID|表达式|说明
   [root@backup ~]# echo $herhan
   word
 ```
-### 8.3 Shell特殊扩展变量的生产场景应用案例
+###  8.3. <a name='Shell-1'></a>8.3 Shell特殊扩展变量的生产场景应用案例
 
 ```bash
   # 范例：删除7天前的过期数据备份
@@ -1197,8 +1246,8 @@ ID|表达式|说明
   + find /tmp -name '*.tar.gz' -type f -mtime +7
 ```
 
-## 9.变量的数值计算实践
-### 9.1 算术运算符
+##  9. <a name='-1'></a>9.变量的数值计算实践
+###  9.1. <a name='-1'></a>9.1 算术运算符
 * Shell中常见的算术运算符号
 
 算术运算符|意义（*表示常用）
@@ -1226,7 +1275,7 @@ ID|表达式|说明
 `awk`|awk既可以用于整数运算，也可以用于小数运算
 `declare`|定义变量值和属性，-i参数可以用于定义整形变量，做运算
 
-### 9.2 双小括号"(())"数值运算命令
+###  9.2. <a name='-1'></a>9.2 双小括号"(())"数值运算命令
 * 双小括号"(())"数值运算的基础语法
 
 运算操作符与运算命令|意义
@@ -1405,4 +1454,544 @@ ID|表达式|说明
           print_usage
   fi
   echo "${firstnum}${operators}${secondnum}=$((${firstnum}${operators}${secondnum}))"
+  [root@backup ~]# vim 05_10_jisuan.sh
+  [root@backup ~]# sh 05_10_jisuan.sh 
+  Please input first number: 1
+  Please input the operaters: +
+  Please input second number: 3
+  1+3=4
+  [root@backup ~]# sh 05_10_jisuan.sh 
+  Please input first number: 3
+  Please input the operaters: ^
+  please use {+|-|*|/}
+  ^
+
+  # 方法二
+  [root@backup ~]# cat 05_11_jisuan.sh 
+  #!/bin/bash
+  # add ,subtract,multiply and divide
+  print_usage(){
+          printf $"USAGE:$0 NUM1 {+|-|*|/} NUM2\n"
+          exit 1
+  }
+  if [ $# -ne 3 ];then
+          print_usage
+  fi
+  firstnum=$1
+  secondnum=$3
+  op=$2
+  if [ -n "`echo $firstnum|sed 's/[0-9]//g'`" ];then
+          print_usage
+  fi
+  if [ "$op" != "+" ]&&[ "$op" != "-" ]&&[ "$op" != "*" ]&&[ "$op" != "/" ];then
+          print_usage
+  fi
+  if [ -n "`echo $secondnum|sed 's/[0-9]//g'`" ];then
+          print_usage
+  fi
+  echo "${firstnum}${op}${secondnum}=$((${firstnum}${op}${secondnum}))"
+  [root@backup ~]# sh 05_11_jisuan.sh 
+  USAGE:05_11_jisuan.sh NUM1 {+|-|*|/} NUM2
+  [root@backup ~]# sh 05_11_jisuan.sh 1+2
+  USAGE:05_11_jisuan.sh NUM1 {+|-|*|/} NUM2
+  [root@backup ~]# sh 05_11_jisuan.sh 1 + 2
+  1+2=3
+  [root@backup ~]# sh 05_11_jisuan.sh 1 * 2
+  USAGE:05_11_jisuan.sh NUM1 {+|-|*|/} NUM2
+  [root@backup ~]# sh 05_11_jisuan.sh 1 \* 2
+  1*2=2
+  [root@backup ~]# sh 05_11_jisuan.sh 1 / 2
+  1/2=0
+
+  # 方法三
+  [root@backup ~]# cat jisuan1.sh
+  echo $(($1))
+  [root@backup ~]# sh jisuan1.sh 
+  0
+  [root@backup ~]# sh jisuan1.sh 1+1
+  2
+  [root@backup ~]# sh jisuan1.sh "1 + 1"
+  2
+```
+
+###  9.3. <a name='let'></a>9.3 let运算命令的用法
+* `let`运算命令的语法格式为：`let` 赋值表达式
+* `let`赋值表达式的功能等同于"((赋值表达式))"
+
+* 范例
+```bash
+  # 范例：给自变量i加8
+  [root@backup ~]# i=2
+  [root@backup ~]# i=i+8
+  [root@backup ~]# echo $i
+  i+8
+  [root@backup ~]# unset i
+  [root@backup ~]# i=2
+  [root@backup ~]# let i=i+8
+  [root@backup ~]# echo $i
+  10
+
+  # 范例：监控Web服务状态，如果访问两次均失败
+  [root@backup ~]# cat 05_12_checkurl.sh 
+  #!/bin/bash
+  CheckUrl(){
+          timeout=5
+          fails=0
+          success=0
+          while true
+          do
+                  wget --timeout=$timeout --tries=1 http://www.baidu.com -q -O /dev/null
+                  if [ $? -ne 0 ];then
+                          let fails=fails+1
+                  else
+                          let success=success+1
+                  fi
+                  if [ $success -ge 1 ];then
+                          echo success
+                          exit 0
+                  fi
+                  if [ $fails -ge 2 ];then
+                          Critical="sys is down."
+                          echo $Critical|tee|mail -s "$Critical" herhan630@live.cn
+                          exit 2
+                  fi
+  done
+  }
+  CheckUrl
+  [root@backup ~]# sh -x 05_12_checkurl.sh 
+  + CheckUrl
+  + timeout=5
+  + fails=0
+  + success=0
+  + true
+  + wget --timeout=5 --tries=1 http://oldboy.b.com -q -O /dev/null
+  + '[' 4 -ne 0 ']'
+  + let fails=fails+1
+  + '[' 0 -ge 1 ']'
+  + '[' 1 -ge 2 ']'
+  + true
+  + wget --timeout=5 --tries=1 http://oldboy.b.com -q -O /dev/null
+  + '[' 4 -ne 0 ']'
+  + let fails=fails+1
+  + '[' 0 -ge 1 ']'
+  + '[' 2 -ge 2 ']'
+  + Critical='sys is down.'
+  + mail -s 'sys is down.' herhan630@live.cn
+  + tee
+  + echo sys is down.
+  + exit 2
+  [root@backup ~]# vim 05_12_checkurl.sh
+  [root@backup ~]# sh -x 05_12_checkurl.sh 
+  + CheckUrl
+  + timeout=5
+  + fails=0
+  + success=0
+  + true
+  + wget --timeout=5 --tries=1 http://www.baidu.com -q -O /dev/null
+  + '[' 0 -ne 0 ']'
+  + let success=success+1
+  + '[' 1 -ge 1 ']'
+  + echo success
+  success
+  + exit 0
+```
+
+###  9.4. <a name='expr'></a>9.4 expr命令的用法
+* expr命令的基本用法示例
+  * expr (evaluate(求值) expressions(表达式))命令既可以用于整数运算，也可用于相关字符串长度、匹配等的运算处理
+  * expr用于计算：`expr Expression`
+    ```bash
+      # 范例：expr命令运算用法实践
+      [root@backup ~]# expr 2 + 2
+      4
+      [root@backup ~]# expr 2 - 2
+      0
+      [root@backup ~]# expr 2 * 2
+      expr: 语法错误
+      [root@backup ~]# expr 2 \* 2
+      4
+      [root@backup ~]# expr 2 / 2
+      1
+    ```
+    * 运算符及用于计算的数字左右都至少有一个空格，否则会报错
+    * 使用乘号时，必须用反斜线屏蔽其特定含义，因为Shell可能会误解星号的含义
+  * expr配合变量计算
+    * expr在Shell中可配合变量进行计算，但需要用反引号将计算表达式括起来
+    ```bash
+      # 范例：给自变量i加6
+      [root@backup ~]# i=5
+      [root@backup ~]# i=`expr $i + 6`
+      [root@backup ~]# echo $i
+      11
+    ```
+* expr的企业级实战案例详解
+  * 判断一个变量值或字符串是否为整数
+    * 实现原理是，利用以expr做计算时变量或字符串必须是整数的规则，把一个变量或字符串和一个已知的整数（非0）相加，看命令返回的值是否为0。如果为0，就认为做加法的变量或字符串为整数，否则就不是整数。
+  ```bash
+    # 通过expr判断变量或字符串是否为整数。
+    [root@backup ~]# i=5
+    [root@backup ~]# expr $i + 6 &>/dev/null
+    [root@backup ~]# echo $?
+    0
+    [root@backup ~]# i=oldboy
+    [root@backup ~]# expr $i + 6 &>/dev/null
+    [root@backup ~]# echo $?
+    2
+
+    # 通过传参判断输出内容是否为整数
+    [root@backup ~]# cat 05_16_expr.sh 
+    #!/bin/sh
+    expr $1 + 1 >/dev/null 2>&1
+    [ $? -eq 0 ] &&echo int||echo chars
+    [root@backup ~]# sh 05_16_expr.sh oldboy
+    chars
+    [root@backup ~]# sh 05_16_expr.sh 119
+    int
+
+    # 通过read读入持续等待输入例子
+    [root@backup ~]# cat judge_int.sh 
+    #!/bin/sh
+    while true
+    do
+            read -p "Pls input:" a
+            expr $a + 0 >/dev/null 2>&1
+            [ $? -eq 0 ] && echo int || echo chars
+    done
+    root@backup ~]# sh judge_int.sh
+    Pls input:116
+    int
+    Pls input:gg
+    chars
+    Pls input:^C
+
+    # 将前文的混合运算小程序改成输入两个参数后进行计算的程序，并且要能判断传参的个数及通过expr判断传入的参数是否为整数
+    # 编程思路：
+    # 第一关，判断参数个数是否为2，若不是，则给出提示终止运行
+    # 第二关，判断传入的参数是否为整数，若不是，则给出提示终止运行
+    # 第三关，做运算
+    [root@backup ~]# cat 05_18_1.sh 
+    #!/bin/bash
+    # no.1
+    [ $# -ne 2 ] &&{
+            echo $"USAGE $0 NUM1 NUM2"
+            exit 1
+    }
+    # no.2
+    a=$1
+    b=$2
+    expr $a + $b + 110 &>/dev/null
+    if [ $? -ne 0 ];then
+            echo "you must input two nums."
+            exit 2
+    fi
+    # no.3
+    echo "a-b=$(($a-$b))"
+    echo "a+b=$(($a+$b))"
+    echo "a*b=$(($a*$b))"
+    echo "a/b=$(($a/$b))"
+    echo "a**b=$(($a**$b))"
+    echo "a%b=$(($a%$b))"
+    [root@backup ~]# sh 05_18_1.sh 
+    USAGE 05_18_1.sh NUM1 NUM2
+    [root@backup ~]# sh 05_18_1.sh 8 2
+    a-b=6
+    a+b=10
+    a*b=16
+    a/b=4
+    a**b=64
+    a%b=0
+
+
+    #方法2
+    [root@backup ~]# cat 05_18_2.sh
+    #!/bin/bash
+    #no.1
+    [ $# -ne 2 ] &&{
+            echo $"USAGE $0 NUM1 NUM2"
+            exit 1
+    }
+    #no.2
+    a=$1
+    b=$2
+    expr $a + 1 &>/dev/null
+    RETVAL_A=$?
+    expr $b + 1 &>/dev/null
+    RETVAL_B=$?
+    if [ $RETVAL_A -ne 0 -o $RETVAL_B -ne 0 ];then
+            echo "you must input two nums."
+            exit 2
+    fi
+    #no.3
+    echo "a-b=$(($a-$b))"
+    echo "a+b=$(($a+$b))"
+    echo "a*b=$(($a*$b))"
+    echo "a/b=$(($a/$b))"
+    echo "a**b=$(($a**$b))"
+    echo "a%b=$(($a%$b))"
+    [root@backup ~]# sh 05_18_2.sh
+    USAGE 05_18_2.sh NUM1 NUM2
+    [root@backup ~]# sh 05_18_2.sh 1 a
+    you must input two nums.
+    [root@backup ~]# sh 05_18_2.sh 1 2
+    a-b=-1
+    a+b=3
+    a*b=2
+    a/b=0
+    a**b=1
+    a%b=1
+
+    # expr match 功能进行整数判断
+    [root@backup ~]# cat t1.sh 
+    if [[ `expr match "$1" "[0-9][0-9]*S"` == 0 ]];then
+            echo "$1 is not a num"
+    else
+            echo "$1 is a num"
+    fi
+    [root@backup ~]# sh t1.sh a
+    a is not a num
+    [root@backup ~]# sh t1.sh 11
+    11 is not a num
+    [root@backup ~]# sh t1.sh abcd123
+    abcd123 is not a num
+  ```
+
+  * expr的特殊用法：判断文件扩展命名是否符合要求
+  
+  ```bash
+    # 通过expr判断文件扩展名是否符合要求
+    [root@backup ~]# cat expr1.sh 
+    #!/bin/sh
+    if expr "$1" : ".*\.pub" &>/dev/null ;then
+            echo "you are using $1"
+    else
+            echo "pls use *.pub file"
+    fi
+    [root@backup ~]# sh expr1.sh id_dsa.pub
+    you are using id_dsa.pub
+    [root@backup ~]# sh expr1.sh id_dsa
+    pls use *.pub file
+    
+    # 使用expr命令实现系统ssh服务自带的ssh-copy-id公钥分发脚本
+  ```
+
+  * 通过expr计算字符串的长度
+  ```bash
+    # 利用expr计算字符串的长度
+    [root@backup ~]# char="I am herhan"
+    [root@backup ~]# expr length "$char"
+    11
+    [root@backup ~]# echo ${#char}
+    11
+    [root@backup ~]# echo ${char}|wc -L
+    11
+    [root@backup ~]# echo ${char}|awk '{print length($0)}'
+    11
+
+    # 请编写Shell脚本，打印下面语句中字符数不大于6的单词
+    [root@backup ~]# cat word_length.sh 
+    for n in I am herhan linux welcome to our training
+    do 
+            if [ `expr length $n` -le 6 ];then
+                    echo $n
+            fi
+    done
+    [root@backup ~]# sh word_length.sh
+    I
+    am
+    herhan
+    linux
+    to
+    our
+  ```
+
+###  9.5. <a name='bc'></a>9.5 bc命令的用法
+* bc是UNIX/Linux下的计算器，因此，除了可以作为计算器来使用，还可以作为命令行计算工具使用
+
+```bash
+  # 将bc作为计算器来应用
+  [root@backup ~]# bc
+  bc 1.06.95
+  Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc.
+  This is free software with ABSOLUTELY NO WARRANTY.
+  For details type `warranty`. 
+  1+1
+  2
+  3*3
+  9
+
+  # 将bc用在命令行下面，以实现运算功能
+  [root@backup ~]# echo 5+3|bc
+  8
+  [root@backup ~]# echo 5.5+3.5|bc
+  9.0
+  [root@backup ~]# echo 5.5-3.5|bc
+  2.0
+  [root@backup ~]# echo "scale=2;355/113"|bc
+  3.14
+  [root@backup ~]# echo "scale=6;355/113"|bc
+  3.141592
+  # 利用bc配合变量运算
+  [root@backup ~]# i=5
+  [root@backup ~]# i=`echo $i+6|bc`
+  [root@backup ~]# echo $i
+  11
+
+  # 通过一条命令就按输出1+2+3+...+10的表达式，并计算出结果，请使用bc命令计算
+  [root@backup ~]# seq -s "+" 10
+  1+2+3+4+5+6+7+8+9+10
+  [root@backup ~]# echo {1..10}|tr  " " "+"
+  1+2+3+4+5+6+7+8+9+10
+  [root@backup ~]# echo `seq -s '+' 10`=`seq -s "+" 10|bc`
+  1+2+3+4+5+6+7+8+9+10=55
+  [root@backup ~]# echo `seq -s '+' 10`=$((`seq -s "+" 10`))
+  1+2+3+4+5+6+7+8+9+10=55
+  [root@backup ~]# echo `seq -s '+' 10`=`seq -s " + " 10|xargs expr`
+  1+2+3+4+5+6+7+8+9+10=55
+  [root@backup ~]# echo `seq -s '+' 10`=$(echo $[`seq -s "+" 10`])
+  1+2+3+4+5+6+7+8+9+10=55
+```
+
+###  9.6. <a name='awk'></a>9.6 awk实现计算
+* 利用awk进行运算的效果也很好，适合小数和整数
+```bash
+  [root@backup ~]# echo "7.7 3.8" |awk '{print ($1-$2)}'
+  3.9
+  [root@backup ~]# echo "358 113" |awk '{print ($1-3)/$2}'
+  3.14159
+  [root@backup ~]# echo "3 9" |awk '{print ($1+3)*$2}'
+  54
+```
+
+###  9.7. <a name='declaretypeset'></a>9.7 declare(同typeset)命令用法
+```bash
+  [root@backup ~]# declare -i A=30 B=7
+  [root@backup ~]# A=A+B
+  [root@backup ~]# echo $A
+  37
+```
+
+###  9.8. <a name='-1'></a>$[]符号的运算示例
+```bash
+  [root@backup ~]# cat yhsj.sh 
+  #!/bin/bash
+  if (test -z $1);then
+          read -p "Input Max lines:" MAX
+  else
+          MAX=$1
+  fi
+  i=1
+  while [ $i -le $MAX ]
+  do
+          j=1
+          while [ $j -le $i ]
+          do
+                  f=$[i-1]
+                  g=$[j-1]
+                  if [ $j -eq $i ] || [ $j -eq 1 ];then
+                          declare SUM_${i}_$j=1
+                  else
+                          declare A=$[SUM_${f}_$j]
+                          declare B=$[SUM_${f}_$g]
+                          declare SUM_${i}_$j=`expr $A + $B`
+                  fi
+                  echo -en $[SUM_${i}_$j]" " 
+                  let j++
+          done
+          echo 
+          let i++
+  done
+  [root@backup ~]# sh yhsj.sh
+  Input Max lines:10
+  1 
+  1 1 
+  1 2 1 
+  1 3 3 1 
+  1 4 6 4 1 
+  1 5 10 10 5 1 
+  1 6 15 20 15 6 1 
+  1 7 21 35 35 21 7 1 
+  1 8 28 56 70 56 28 8 1 
+  1 9 36 84 126 126 84 36 9 1 
+```
+
+##  10. <a name='Shellread'></a>10 基于Shell变量输入read命令的运算实践
+###  10.1. <a name='read-1'></a>10.1 read命令基础
+* Shell变量除了可以直接赋值或脚本传参外，还可以使用read命令从标准输入中获得，read为bash内置命令，可以通过help read查看帮助
+* 语法格式：read [参数][变量名]
+  * -p prompt：设置提示信息。
+  * -t timeout：设置输入等待的时间，单位默认为秒
+```bash
+  # 实现read的基本读入功能
+  [root@backup ~]# read -t 10 -p "Pls input one num:" num
+  Pls input one num:10
+  [root@backup ~]# echo $num
+  10
+  [root@backup ~]# read -t 10 -p "Pls input two number:" a1 a2
+  Pls input two number:1 2
+  [root@backup ~]# echo $a1
+  1
+  [root@backup ~]# echo $a2
+  2
+
+  # 把前面加减乘除计算传参的脚本改成通过read方式读入整数变量
+  [root@backup ~]# cat test_2.sh 
+  #!/bin/bash
+  read -t 15 -p "please input two number:" a b
+  echo "a-b=$(($a-$b))"
+  echo "a+b=$(($a+$b))"
+  echo "a*b=$(($a*$b))"
+  echo "a/b=$(($a/$b))"
+  echo "a**b=$(($a**$b))"
+  echo "a%b=$(($a%$b))"
+  [root@backup ~]# sh test_2.sh
+  please input two number:1 2
+  a-b=-1
+  a+b=3
+  a*b=2
+  a/b=0
+  a**b=1
+  a%b=1
+```
+
+###  10.2. <a name='read-1'></a>10.2 以read命令读入及传参的综合企业案例
+```bash
+  # 改造以上问题
+  # 第一关：若用户按要求输入了两个值，则过关
+  # 第二关：用户输入的内容均为整数，才能过关
+  # 第三关：当读入的参数符合个数和整数条件时，进行计算
+  #!/bin/bash
+  read -t 15 -p "Please input two number:" a b
+  #no.1
+  [ ${#a} -le 0 ] && {
+          echo "the first num is null"
+          exit 1
+  }
+  [ ${#b} -le 0 ] && {
+          echo "the first num is null"
+          exit 1
+  }
+  #no.2
+  expr $a + 1 &>/dev/null
+  RETVAL_A=$?
+  expr $b + 1 &>/dev/null
+  RETVAL_B=$?
+  if [ $RETVAL_A -ne 0 -o $RETVAL_B -ne 0 ];then
+          echo "one of the num is not num, pls input again."
+          exit 1
+  fi
+  #no.3
+  echo "a-b=$(($a-$b))"
+  echo "a+b=$(($a+$b))"
+  echo "a*b=$(($a*$b))"
+  echo "a/b=$(($a/$b))"
+  echo "a**b=$(($a**$b))"
+  echo "a%b=$(($a%$b))"
+  [root@backup ~]# sh read_size01.sh 
+  Please input two number:3 4
+  a-b=-1
+  a+b=7
+  a*b=12
+  a/b=0
+  a**b=81
+  a%b=3
 ```
