@@ -4,6 +4,7 @@ tags:
 notebook: pyhton
 ---
 
+<a id="markdown-python基础1" name="python基础1"></a>
 # Python基础1
 
 ---
@@ -11,29 +12,30 @@ notebook: pyhton
 <!-- TOC -->
 
 - [Python基础1](#python基础1)
-    - [1.Python介绍](#1python介绍)
-        - [Python是一门什么样的语言?](#python是一门什么样的语言)
-        - [Python的优缺点](#python的优缺点)
-        - [Python解释器](#python解释器)
-    - [2.Python的发展史](#2python的发展史)
-    - [3.Python安装](#3python安装)
-    - [4.Hello World程序](#4hello-world程序)
-    - [5.变量](#5变量)
-    - [6.字符编码](#6字符编码)
-        - [注释](#注释)
-    - [7.用户输入](#7用户输入)
-    - [8.格式化输出](#8格式化输出)
-    - [9.模块初识](#9模块初识)
-    - [10. `.pyc`是个什么鬼？](#10-pyc是个什么鬼)
-    - [11.数据类型初始](#11数据类型初始)
-    - [12.数据运算](#12数据运算)
-    - [13.表达式`if ... else`](#13表达式if--else)
-    - [14.表达式for loop](#14表达式for-loop)
-    - [15.while loop](#15while-loop)
-    - [16.练习](#16练习)
+  - [1.Python介绍](#1python介绍)
+    - [Python是一门什么样的语言?](#python是一门什么样的语言)
+    - [Python的优缺点](#python的优缺点)
+    - [Python解释器](#python解释器)
+  - [2.Python的发展史](#2python的发展史)
+  - [3.Python安装](#3python安装)
+  - [4.Hello World程序](#4hello-world程序)
+  - [5.变量](#5变量)
+  - [6.字符编码](#6字符编码)
+    - [注释](#注释)
+  - [7.用户输入](#7用户输入)
+  - [8.格式化输出](#8格式化输出)
+  - [9.模块初识](#9模块初识)
+  - [10. `.pyc`是个什么鬼？](#10-pyc是个什么鬼)
+  - [11.数据类型初始](#11数据类型初始)
+  - [12.数据运算](#12数据运算)
+  - [13.表达式`if ... else`](#13表达式if--else)
+  - [14.表达式for loop](#14表达式for-loop)
+  - [15.while loop](#15while-loop)
+  - [16.练习](#16练习)
 
 <!-- /TOC -->
 
+<a id="markdown-1python介绍" name="1python介绍"></a>
 ## 1.Python介绍
 
 `python`的创始人为吉多·范罗苏姆（`Guido van Rossum`）。1989年的圣诞节期间，吉多·范罗苏姆为了在阿姆斯特丹打发时间，决心开发一个新的脚本解释程序，作为`ABC`语言的一种继承。
@@ -59,6 +61,7 @@ notebook: pyhton
   * 春雨医生：国内知名的在线医疗网站是用`Python`开发的
   * 除上面之外，还有搜狐、金山、腾讯、盛大、网易、百度、阿里、淘宝 、土豆、新浪、果壳等公司都在使用`Python`完成各种各样的任务。
 
+<a id="markdown-python是一门什么样的语言" name="python是一门什么样的语言"></a>
 ### Python是一门什么样的语言?
 
 ---
@@ -92,6 +95,7 @@ notebook: pyhton
   * 强类型定义语言在速度上可能略逊色于弱类型定义语言，但是强类型定义语言带来的严谨性能够有效的避免许多错误。另外，“这门语言是不是动态语言”与“这门语言是否类型安全”之间是完全没有联系的！
 * `python`是一门动态解释性的强类型定义语言
 
+<a id="markdown-python的优缺点" name="python的优缺点"></a>
 ### Python的优缺点
 
 ---
@@ -108,6 +112,7 @@ notebook: pyhton
   2. 代码不能加密，因为`PYTHON`是解释性语言，它的源码都是以名文形式存放的，不过我不认为这算是一个缺点，如果你的项目要求源代码必须是加密的，那你一开始就不应该用`Python`来去实现。
   3. 线程不能利用多`CPU`问题，这是`Python`被人诟病最多的一个缺点，`GIL`即全局解释器锁（`Global Interpreter Lock`），是计算机程序设计语言解释器用于同步线程的工具，使得任何时刻仅有一个线程在执行，`Python`的线程是操作系统的原生线程。在`Linux`上为`pthread`，在`Windows`上为`Win thread`，完全由操作系统调度线程的执行。一个`python`解释器进程内有一条主线程，以及多条用户程序的执行线程。即使在多核`CPU`平台上，由于`GIL`的存在，所以禁止多线程的并行执行。关于这个问题的折衷解决方法，我们在以后线程和进程章节里再进行详细探讨。
 
+<a id="markdown-python解释器" name="python解释器"></a>
 ### Python解释器
 
 ---
@@ -131,6 +136,7 @@ notebook: pyhton
 * **IronPython**
   * `IronPython`和`Jython`类似，只不过`IronPython`是运行在微软`.Net`平台上的`Python`解释器，可以直接把`Python`代码编译成`.Net`的字节码。
 
+<a id="markdown-2python的发展史" name="2python的发展史"></a>
 ## 2.Python的发展史
 
 * 1989年，为了打发圣诞节假期，`Guido`开始写`Python`语言的编译器。`Python`这个名字，来自`Guido`所挚爱的电视剧`Monty Python’s Flying Circus`。他希望这个新的叫做`Python`的语言，能符合他的理想：创造一种`C`和`shell`之间，功能全面，易学易用，可拓展的语言。
@@ -150,6 +156,7 @@ notebook: pyhton
 * `Python 3.4 - March 16, 2014`
 * `Python 3.5 - September 13, 2015`
 
+<a id="markdown-3python安装" name="3python安装"></a>
 ## 3.Python安装
 
 * `windows`
@@ -159,6 +166,7 @@ notebook: pyhton
 * `linux,mac`
   * 无需安装，原装Python环境
 
+<a id="markdown-4hello-world程序" name="4hello-world程序"></a>
 ## 4.Hello World程序
 
 * **指定解释器**
@@ -245,6 +253,7 @@ notebook: pyhton
         }
     ```
 
+<a id="markdown-5变量" name="5变量"></a>
 ## 5.变量
 
 * **Variables** are used to store information to be referenced and manipulated in a computer program. They also provide a way of labeling data with a descriptive name, so our programs can be understood more clearly by the reader and ourselves. It is helpful to think of variables as containers that hold information. Their sole purpose is to label and store data in memory. This data can then be used throughout your program.
@@ -279,6 +288,7 @@ notebook: pyhton
     print("What is the value of name2 now?")
   ```
 
+<a id="markdown-6字符编码" name="6字符编码"></a>
 ## 6.字符编码
 
 * `python`解释器在加载`.py`中的代码时，会对内容进行编码（默认`ascll`）
@@ -317,6 +327,7 @@ notebook: pyhton
     print "你好，世界"
   ```
 
+<a id="markdown-注释" name="注释"></a>
 ### 注释
 
 ---
@@ -324,6 +335,7 @@ notebook: pyhton
 * 当行注释： `#` 被注释内容
 * 多行注释： """ 被注释内容 """
 
+<a id="markdown-7用户输入" name="7用户输入"></a>
 ## 7.用户输入
 
 ```python
@@ -350,6 +362,7 @@ notebook: pyhton
     print（pwd）
 ```
 
+<a id="markdown-8格式化输出" name="8格式化输出"></a>
 ## 8.格式化输出
 > 格式化输出:
 > ------- info of herhan --------
@@ -402,6 +415,7 @@ notebook: pyhton
   print(msg2)
 ```
 
+<a id="markdown-9模块初识" name="9模块初识"></a>
 ## 9.模块初识
 
 * `python`的强大之外在于他有非常丰富和强大的标准库和第三方库，几乎你想实现的任何功能都有相应的`python`库支持,以后的课程中会深入讲解常用到的各种库，现在，我们先来象征性的学2个简单的
@@ -495,6 +509,7 @@ notebook: pyhton
 
 * 此时你就要把这个`tab.py`放到`python`全局环境变量目录里啦，基本一般都放在一个叫 `Python/2.7/site-packages` 目录下，这个目录在不同的OS里放的位置不一样，用 `print(sys.path)` 可以查看python环境变量列表.
 
+<a id="markdown-10-pyc是个什么鬼" name="10-pyc是个什么鬼"></a>
 ## 10. `.pyc`是个什么鬼？
 
 1. `Python`是一门解释型语言？
@@ -527,6 +542,7 @@ notebook: pyhton
    * 当`python`程序第二次运行时，首先程序会在硬盘中寻找`pyc`文件，如果找到，则直接载入，否则就重复上面的过程。
    * 所以我们应该这样来定位`PyCodeObject`和`pyc`文件，我们说`pyc`文件其实是`PyCodeObject`的一种持久化保存方式。
 
+<a id="markdown-11数据类型初始" name="11数据类型初始"></a>
 ## 11.数据类型初始
 
 1. **数字**
@@ -610,6 +626,7 @@ notebook: pyhton
 
     ![5](https://pic.downk.cc/item/5e4ba4f448b86553ee5146cc.png)
 
+<a id="markdown-12数据运算" name="12数据运算"></a>
 ## 12.数据运算
 
 * 算数运算：
@@ -736,6 +753,7 @@ notebook: pyhton
   * 如果条件为真：`result` = 值1
   * 如果条件为假：`result` = 值2
 
+<a id="markdown-13表达式if--else" name="13表达式if--else"></a>
 ## 13.表达式`if ... else`
 
 * 场景1 用户登录验证
@@ -783,6 +801,7 @@ notebook: pyhton
   > 外层变量，可以被内层代码使用
   > 内层变量，不应被外层代码使用
 
+<a id="markdown-14表达式for-loop" name="14表达式for-loop"></a>
 ## 14.表达式for loop
 
 * 最简单的循环10次
@@ -814,6 +833,7 @@ notebook: pyhton
         print("loop:", 1 )
   ```
 
+<a id="markdown-15while-loop" name="15while-loop"></a>
 ## 15.while loop
 
 > **有一种循环叫死循环，一经触发，就运行个天荒地老、海枯石烂**
@@ -863,6 +883,7 @@ notebook: pyhton
         print("猜这么多次都不对,你个笨蛋.")
   ```
 
+<a id="markdown-16练习" name="16练习"></a>
 ## 16.练习
 
 * 作业1：编写登陆接口
