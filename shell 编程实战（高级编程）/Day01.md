@@ -6,11 +6,11 @@
  * @Description: In User Settings Edit
  * @FilePath: \github\shell 编程实战（高级编程）\Day01.md
 --> 
-# `Shell`高级编程 Day01
+# `Shell`高级编程 Day01 —— 如何才能学好Shell编程
 
 <!-- TOC -->
 
-- [`Shell`高级编程 Day01](#shell高级编程-day01)
+- [`Shell`高级编程 Day01 —— 如何才能学好Shell编程](#shell高级编程-day01--如何才能学好shell编程)
   - [1.`Shell`脚本自动化管理系统的必备基础](#1shell脚本自动化管理系统的必备基础)
   - [2.如何才能学好`Shell`编程](#2如何才能学好shell编程)
 
