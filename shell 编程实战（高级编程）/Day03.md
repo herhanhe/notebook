@@ -1,4 +1,5 @@
 # `Shell`高级编程 Day03 —— Shell变量
+[toc]
 
 
 ## 1.什么是Shell变量
