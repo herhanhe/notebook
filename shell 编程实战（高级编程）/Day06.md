@@ -372,3 +372,123 @@
     }
     main
 ```
+## 7 检测优化后的配合是否正常
+
+```bash
+    [root@backup ~]# cat check_opt.sh 
+    #!/bin/bash
+    #set env
+    export PATH=$PATH:/bin:/sbin:/usr/sbin
+    # Require root to run this script.
+    if [ "$UID" != "0" ];then
+            echo "Please run this script by root."
+            exit 1
+    fi
+
+    # Source function library.
+    . /etc/init.d/functions
+
+    function check_yum(){
+            Base=/etc/yum.repos.d/CentOS-Base.repo
+            if [ `grep aliyun $Base|wc -l` -ge 1 ];then
+                    action "$Base config" /bin/true
+            else
+                    action "$Base config" /bin/false
+            fi
+    }
+
+    function check_selinux(){
+            config=/etc/selinux/config
+            if [ `grep "SELINUX=disabled" $config|wc -l` -ge 1 ];then
+                    action "$config config" /bin/true
+            else
+                    action "$config config" /bin/false
+            fi
+    }
+
+    function check_service(){
+            export LANG=en
+            if [ `systemctl list-unit-files|grep enable|wc -l` -eq 7 ];then
+                    action "sys service init" /bin/true
+            else
+                    action "sys service init" /bin/false
+            fi
+    }
+
+    function check_open_file(){
+            limits=/etc/security/limits.conf
+            if [ `grep 65535 $limits|wc -l` -eq 1 ];then
+                    action "$limits" /bin/true
+            else
+                    action "$limits" /bin/false
+            fi
+    }
+
+    main(){
+            check_yum
+            check_selinux
+            check_service
+            check_open_file
+    }
+    main    
+```
+
+## 8 利用Shell函数开发rsync服务启动脚本
+```bash
+    [root@backup ~]# cat rsyncdl 
+    #!/bin/bash
+    # chkconfig: 2345 30 80
+    # decription: Rsyncd Startup scripts by herhan
+    . /etc/init.d/functions
+
+    function usage() {
+            echo $"usage:$0 {start|stop|restart}"
+            exit 1
+    }
+
+    function start() {
+            rsync --daemon
+            sleep 1
+            if [ `netstat -lntup|grep rsync|wc -l` -ge 1 ];then
+                    action "rsyncd is started." /bin/true
+            else
+                    action "rsyncd is started." /bin/false
+            fi
+    }
+
+    function stop() {
+            killall rsync &>/dev/null
+            sleep 2
+            if [ `netstat -lntup|grep rsync|wc -l` -ge 0 ];then
+                    action "rsync is stopped." /bin/true
+            else
+                    action "rsync is started." /bin/false
+            fi
+    }
+
+    function main() {
+            if [ $# -ne 1 ];then
+                    usage
+            fi
+            if [ "$1" = "start" ];then
+                    start
+            elif [ "$1" = "stop" ];then
+                    stop
+            elif [ "$1" = "restart" ];then
+                    stop
+                    sleep 1
+                    start
+            else
+                    usage
+            fi
+    }
+
+    main $*
+    [root@backup ~]# sh rsyncdl restart
+    rsync is stopped.                                          [  确定  ]
+    rsyncd is started.                                         [  确定  ]
+    [root@backup ~]# sh rsyncdl start
+    rsyncd is started.                                         [  确定  ]
+    [root@backup ~]# sh rsyncdl stop
+    rsync is stopped.                                          [  确定  ]
+```
